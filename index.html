@@ -533,26 +533,27 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
   var DEVICE_ID   = null;
 
   // ── DEVICE ID (SHA-256 of userAgent + screen size) ──
-  async function generateDeviceId() {
-    var raw = navigator.userAgent + '|' + screen.width + 'x' + screen.height;
-    try {
-      var enc = new TextEncoder().encode(raw);
-      var buf = await crypto.subtle.digest('SHA-256', enc);
-      var arr = Array.from(new Uint8Array(buf));
-      return arr.map(function(b){ return b.toString(16).padStart(2,'0'); }).join('').toUpperCase().slice(0, 32);
-    } catch(e) {
-      // Fallback if subtle not available
-      return 'DEV-' + Math.random().toString(36).substr(2,9).toUpperCase();
-    }
+ function generateDeviceId() {
+  var raw = navigator.userAgent + '|' + screen.width + 'x' + screen.height;
+
+  var hash = 0;
+  for (var i = 0; i < raw.length; i++) {
+    var chr = raw.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
+    hash |= 0;
   }
 
-  async function getDeviceId() {
-    var cached = localStorage.getItem('svna_device_id');
-    if (cached) return cached;
-    var id = await generateDeviceId();
-    localStorage.setItem('svna_device_id', id);
-    return id;
-  }
+  return 'DEV-' + Math.abs(hash).toString(16).toUpperCase();
+}
+
+function getDeviceId() {
+  var cached = localStorage.getItem('svna_device_id');
+  if (cached) return cached;
+
+  var id = generateDeviceId();
+  localStorage.setItem('svna_device_id', id);
+  return id;
+}
 
   // ── SOUND ENGINE ──
   var audioCtx = null;
@@ -728,7 +729,7 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
         showToast('success', 'Kích hoạt thành công!', 'Chào mừng đến SuperVNA 🎉');
         closeMol();
       } else {
-        var msg = (result && result.message) ? result.message : 'Key không hợp lệ hoặc đã hết hạn';
+        var msg = (result && result.msg) ? result.msg : 'Key không hợp lệ hoặc đã hết hạn';
         sndOff();
         showToast('error', 'Kích hoạt thất bại', msg);
       }
@@ -789,7 +790,7 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
 
   // ── INIT ──
   (async function init() {
-    DEVICE_ID = await getDeviceId();
+ DEVICE_ID = getDeviceId();   
     lockUI();
     autoCheckSavedKey();
   })();
