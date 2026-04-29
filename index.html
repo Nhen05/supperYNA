@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SuperVNA - Game Tool Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
-<!-- Howler.js CDN — audio library -->
- <link rel="shortcut icon" href="favicon.jpg" type="image/x-icon">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+<link rel="shortcut icon" href="favicon.jpg" type="image/x-icon">
 <style>
 :root {
   --green: #00ff87; --green-dark: #00c060; --green-glow: rgba(0,255,135,0.35);
@@ -24,7 +22,7 @@ html,body { width:100%; height:100%; background:#050507; display:flex; justify-c
 .grid-bg { position:absolute; inset:0; z-index:0; pointer-events:none; opacity:0.032; background-image:linear-gradient(rgba(0,255,135,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,135,1) 1px,transparent 1px); background-size:36px 36px; }
 .scanlines { position:absolute; inset:0; z-index:0; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.022) 2px,rgba(0,0,0,0.022) 4px); }
 
-/* TOAST — absolute inside phone-wrap */
+/* TOAST */
 #toast-container { position:absolute; top:70px; right:10px; z-index:9999; display:flex; flex-direction:column; gap:8px; width:200px; pointer-events:none; }
 .toast { display:flex; align-items:center; gap:9px; padding:10px 12px; border-radius:14px; font-family:'Rajdhani',sans-serif; backdrop-filter:blur(22px); border:1px solid; animation:toastIn 0.42s cubic-bezier(.34,1.56,.64,1) forwards; pointer-events:auto; position:relative; overflow:hidden; }
 .toast::after { content:''; position:absolute; top:0; left:0; right:0; height:1.5px; border-radius:14px 14px 0 0; }
@@ -95,6 +93,13 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
 .stag .bl { width:5px; height:5px; border-radius:50%; background:currentColor; animation:blk 1.3s infinite; }
 @keyframes blk { 0%,100%{opacity:1} 50%{opacity:0.12} }
 
+/* LOCKED FEATURE CARD */
+.fc.locked { opacity:0.5; cursor:not-allowed !important; }
+.fc.locked:active { transform:none; }
+.fc.locked .tgl { cursor:not-allowed !important; }
+.fc.locked * { cursor:not-allowed !important; }
+.lock-overlay { position:absolute; top:8px; right:8px; font-size:13px; opacity:0.7; pointer-events:none; z-index:2; }
+
 /* TOGGLE */
 .tgl { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; position:relative; }
 .tgl .ro  { position:absolute; inset:0;  border-radius:50%; border:2px solid rgba(255,45,85,0.42); background:rgba(255,45,85,0.07); transition:all 0.4s; }
@@ -126,6 +131,12 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
 .key-btn::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent 0%,rgba(0,255,135,0.07) 50%,transparent 100%); transform:translateX(-100%); animation:keySweep 2.4s infinite ease-in-out; }
 @keyframes keySweep { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
 
+/* MUA KEY BUTTON */
+.mua-key-zone { margin:8px 0 16px; }
+.btn-mua-key { width:100%; border:none; border-radius:14px; cursor:pointer; padding:14px; background:linear-gradient(135deg,#1a0020,#2d0035,#1a0020); border:1px solid rgba(180,0,255,0.35); display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Orbitron',monospace; font-weight:700; font-size:11px; letter-spacing:1.5px; color:#d966ff; transition:all 0.3s; position:relative; overflow:hidden; }
+.btn-mua-key::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(180,0,255,0.08),transparent); transform:translateX(-100%); animation:keySweep 2.8s infinite ease-in-out; }
+.btn-mua-key:active { transform:scale(0.975); }
+
 /* FOOTER */
 .footer { position:relative; z-index:10; flex-shrink:0; margin-top:18px; background:rgba(4,4,8,0.98); border-top:1px solid rgba(0,255,135,0.07); padding:15px 16px 22px; display:flex; flex-direction:column; align-items:center; gap:7px; backdrop-filter:blur(20px); }
 .footer-brand { display:flex; align-items:center; gap:8px; }
@@ -140,7 +151,7 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
 .dev-name { font-family:'Orbitron',monospace; font-size:9.5px; font-weight:700; color:rgba(255,70,90,0.72); letter-spacing:1.2px; }
 .footer-copy { font-family:'Rajdhani',sans-serif; font-size:8.5px; color:rgba(255,255,255,0.09); letter-spacing:0.8px; }
 
-/* MODAL */
+/* ── LICENSE MODAL ── */
 #mol { position:absolute; inset:0; z-index:200; background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); display:none; align-items:flex-end; justify-content:center; }
 #mol.open { display:flex; animation:mFade 0.22s ease; }
 @keyframes mFade { from{opacity:0} to{opacity:1} }
@@ -178,17 +189,26 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
 .inp-wrap svg { width:13px; height:13px; color:rgba(0,255,135,0.5); flex-shrink:0; }
 .key-inp { flex:1; background:none; border:none; outline:none; font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700; color:#fff; letter-spacing:1px; }
 .key-inp::placeholder { color:rgba(255,255,255,0.15); font-weight:500; }
+.key-inp:disabled { opacity:0.5; cursor:not-allowed; }
 .btn-act { width:100%; padding:13px; border:none; border-radius:11px; font-family:'Orbitron',monospace; font-weight:700; font-size:12px; letter-spacing:1.5px; color:#000; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; transition:all 0.3s; position:relative; overflow:hidden; background:linear-gradient(135deg,#00b858,#00ff87,#00d870); box-shadow:0 4px 20px rgba(0,255,135,0.28),0 0 0 1px rgba(0,255,135,0.2); }
 .btn-act::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent); animation:btnShine 2.5s infinite; }
 @keyframes btnShine { 0%{left:-100%} 100%{left:200%} }
 .btn-act:active { transform:scale(0.97); }
-.div-txt { text-align:center; font-size:10px; color:var(--muted); margin:12px 0; font-family:'Rajdhani',sans-serif; letter-spacing:1px; position:relative; }
-.div-txt::before,.div-txt::after { content:''; position:absolute; top:50%; width:35%; height:1px; background:rgba(255,255,255,0.05); }
+.btn-act:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+.div-txt { text-align:center; font-size:10px; color:var(--muted); margin:10px 0 8px; font-family:'Rajdhani',sans-serif; letter-spacing:1px; position:relative; }
+.div-txt::before,.div-txt::after { content:''; position:absolute; top:50%; width:28%; height:1px; background:rgba(255,255,255,0.05); }
 .div-txt::before{left:0} .div-txt::after{right:0}
-.btn-free { width:100%; padding:11px 14px; border:1px solid rgba(0,255,135,0.18); background:rgba(0,255,135,0.03); border-radius:11px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:0.7px; color:var(--green); cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition:all 0.3s; }
+.btn-free { width:100%; padding:11px 14px; border:1px solid rgba(0,255,135,0.18); background:rgba(0,255,135,0.03); border-radius:11px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:0.7px; color:var(--green); cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition:all 0.3s; margin-bottom:8px; }
 .btn-free:active { background:rgba(0,255,135,0.08); border-color:rgba(0,255,135,0.4); }
 .btn-free span { display:flex; align-items:center; gap:6px; }
 .btn-free svg { width:14px; height:14px; }
+
+/* MUA KEY NGAY button inside license modal */
+.btn-mua-key-mol { width:100%; padding:11px 14px; border:1px solid rgba(180,0,255,0.32); background:rgba(180,0,255,0.06); border-radius:11px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:0.7px; color:#d966ff; cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition:all 0.3s; position:relative; overflow:hidden; }
+.btn-mua-key-mol::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(180,0,255,0.06),transparent); transform:translateX(-100%); animation:keySweep 2.8s infinite ease-in-out; }
+.btn-mua-key-mol:active { background:rgba(180,0,255,0.14); border-color:rgba(180,0,255,0.5); }
+.btn-mua-key-mol span { display:flex; align-items:center; gap:6px; }
+
 .m-feats { margin-top:15px; }
 .f-lbl { font-family:'Rajdhani',sans-serif; font-size:9.5px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; display:flex; align-items:center; gap:5px; margin-bottom:8px; }
 .f-lbl em { font-style:normal; color:var(--red); }
@@ -198,6 +218,44 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
 .f-name { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12px; color:#fff; }
 .f-sub  { font-size:9px; color:var(--muted); margin-top:1px; }
 .f-check { margin-left:auto; font-size:12px; }
+
+/* LOADING SPINNER */
+.spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,0.3); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── PAYMENT MODAL ── */
+#pay-mol { position:absolute; inset:0; z-index:300; background:rgba(0,0,0,0.88); backdrop-filter:blur(14px); display:none; align-items:flex-end; justify-content:center; }
+#pay-mol.open { display:flex; animation:mFade 0.22s ease; }
+.pay-box { width:100%; background:linear-gradient(170deg,#0d0a1f 0%,#130e26 50%,#0d0a1f 100%); border:1px solid rgba(180,0,255,0.22); border-bottom:none; border-radius:24px 24px 0 0; box-shadow:0 -6px 40px rgba(140,0,255,0.1),0 -20px 60px rgba(0,0,0,0.85); animation:mUp 0.38s cubic-bezier(.34,1.18,.64,1); max-height:92vh; overflow-y:auto; overflow-x:hidden; }
+.pay-head { padding:16px 16px 14px; border-bottom:1px solid rgba(180,0,255,0.1); display:flex; align-items:center; justify-content:space-between; position:relative; }
+.pay-head::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(180,0,255,0.5),transparent); }
+.pay-title { font-family:'Orbitron',monospace; font-weight:900; font-size:14px; background:linear-gradient(90deg,#d966ff,#fff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:0.8px; }
+.pay-close { width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted); font-size:13px; transition:all 0.2s; }
+.pay-close:active { background:rgba(255,45,85,0.18); color:var(--red); }
+.pay-body { padding:16px; }
+.pay-plans { display:flex; flex-direction:column; gap:9px; margin-bottom:18px; }
+.plan-card { border-radius:13px; padding:13px 15px; display:flex; align-items:center; gap:12px; border:1px solid; transition:all 0.25s; cursor:default; position:relative; overflow:hidden; }
+.plan-card::before { content:''; position:absolute; top:0; right:0; width:60px; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.03)); }
+.plan-card.basic { background:rgba(0,180,255,0.04); border-color:rgba(0,180,255,0.22); }
+.plan-card.pro   { background:rgba(180,0,255,0.06); border-color:rgba(180,0,255,0.35); }
+.plan-card.life  { background:rgba(255,180,0,0.05); border-color:rgba(255,180,0,0.28); }
+.plan-card.pro::after { content:'HOT'; position:absolute; top:8px; right:10px; font-family:'Rajdhani',sans-serif; font-size:8px; font-weight:700; color:#d966ff; letter-spacing:1px; background:rgba(180,0,255,0.15); padding:2px 6px; border-radius:6px; border:1px solid rgba(180,0,255,0.3); }
+.plan-card.life::after { content:'BEST'; position:absolute; top:8px; right:10px; font-family:'Rajdhani',sans-serif; font-size:8px; font-weight:700; color:#ffb400; letter-spacing:1px; background:rgba(255,180,0,0.12); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,180,0,0.3); }
+.plan-ico { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.plan-card.basic .plan-ico { background:rgba(0,180,255,0.1); }
+.plan-card.pro   .plan-ico { background:rgba(180,0,255,0.12); }
+.plan-card.life  .plan-ico { background:rgba(255,180,0,0.1); }
+.plan-name { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; color:#fff; }
+.plan-price { font-family:'Orbitron',monospace; font-size:12px; font-weight:700; margin-top:2px; }
+.plan-card.basic .plan-price { color:#00b4ff; }
+.plan-card.pro   .plan-price { color:#d966ff; }
+.plan-card.life  .plan-price { color:#ffb400; }
+.pay-qr-section { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:14px; margin-bottom:14px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+.pay-qr-lbl { font-family:'Rajdhani',sans-serif; font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+.pay-qr-img { width:180px; height:180px; border-radius:12px; object-fit:cover; border:2px solid rgba(180,0,255,0.3); box-shadow:0 0 20px rgba(180,0,255,0.15); }
+.pay-note { font-family:'Rajdhani',sans-serif; font-size:11px; font-weight:600; color:rgba(255,210,100,0.85); text-align:center; background:rgba(255,180,0,0.06); border:1px solid rgba(255,180,0,0.18); border-radius:10px; padding:9px 12px; letter-spacing:0.3px; }
+.btn-paid { width:100%; margin-top:14px; padding:14px; border:none; border-radius:12px; font-family:'Orbitron',monospace; font-weight:700; font-size:11px; letter-spacing:1.5px; color:#000; cursor:pointer; background:linear-gradient(135deg,#9000cc,#d966ff,#b300ff); box-shadow:0 4px 20px rgba(180,0,255,0.3); transition:all 0.3s; }
+.btn-paid:active { transform:scale(0.97); }
 </style>
 </head>
 <body>
@@ -213,7 +271,7 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
       <div class="logo">SUPER<em>VNA</em></div>
     </div>
     <div style="display:flex;align-items:center;gap:9px">
-      <span style="font-family:'Rajdhani';font-size:9.5px;color:var(--red);letter-spacing:1px">• Chưa kích hoạt</span>
+      <span id="status-label" style="font-family:'Rajdhani';font-size:9.5px;color:var(--red);letter-spacing:1px">• Chưa kích hoạt</span>
       <button class="btn-login" id="btn-login" onclick="openMol()">🔑 LOGIN</button>
     </div>
   </header>
@@ -230,7 +288,8 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
 
     <div class="sec-lbl"><em>●</em> TÍNH NĂNG CHÍNH</div>
 
-    <div class="fc" id="fc1" onclick="toggleFc(this,'fc1','Game Booster','Tối ưu RAM & CPU đang chạy')">
+    <div class="fc locked" id="fc1" onclick="handleFeatureClick(event,this,'fc1','Game Booster','Tối ưu RAM & CPU đang chạy')">
+      <div class="lock-overlay">🔒</div>
       <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
       <div class="inf">
         <div class="nm">Game Booster</div>
@@ -240,7 +299,8 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
       <div class="tgl" id="tb-fc1"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/></svg></div>
     </div>
 
-    <div class="fc" id="fc2" onclick="toggleFc(this,'fc2','Super Aimlock','Khóa mục tiêu đang hoạt động')">
+    <div class="fc locked" id="fc2" onclick="handleFeatureClick(event,this,'fc2','Super Aimlock','Khóa mục tiêu đang hoạt động')">
+      <div class="lock-overlay">🔒</div>
       <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg></div>
       <div class="inf">
         <div class="nm">Super Aimlock</div>
@@ -250,7 +310,8 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
       <div class="tgl" id="tb-fc2"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/></svg></div>
     </div>
 
-    <div class="fc" id="fc3" onclick="toggleFc(this,'fc3','Optimizer PugS','Giảm ping đang được áp dụng')">
+    <div class="fc locked" id="fc3" onclick="handleFeatureClick(event,this,'fc3','Optimizer PugS','Giảm ping đang được áp dụng')">
+      <div class="lock-overlay">🔒</div>
       <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><path d="M1 6l5 5-5 5M23 6l-5 5 5 5M8 2l8 20"/></svg></div>
       <div class="inf">
         <div class="nm">Optimizer PugS</div>
@@ -259,58 +320,55 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
       </div>
       <div class="tgl" id="tb-fc3"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/></svg></div>
     </div>
-    <div class="fc" id="fc5" onclick="toggleFc(this,'fc5','ULTRALOCK','Khóa tâm nâng cao đã bật')">
-  <div class="iw">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2">
-      <circle cx="12" cy="12" r="7"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
-  </div>
-  <div class="inf">
-    <div class="nm">ULTRALOCK</div>
-    <div class="ds"><span class="dot"></span>Độ chính xác cao</div>
-    <span class="stag off" id="tg-fc5"><span class="bl"></span> Chưa bật</span>
-  </div>
-  <div class="tgl" id="tb-fc5">
-    <div class="rs2"></div><div class="rs"></div><div class="ro"></div>
-    <svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
-  </div>
-</div>
-<div class="fc" id="fc6" onclick="toggleFc(this,'fc6','ULTIMATE LOCK','Khóa tâm tối đa đã bật')">
-  <div class="iw">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2">
-      <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/>
-    </svg>
-  </div>
-  <div class="inf">
-    <div class="nm">ULTIMATE LOCK</div>
-    <div class="ds"><span class="dot"></span>Hiệu suất max level</div>
-    <span class="stag off" id="tg-fc6"><span class="bl"></span> Chưa bật</span>
-  </div>
-  <div class="tgl" id="tb-fc6">
-    <div class="rs2"></div><div class="rs"></div><div class="ro"></div>
-    <svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
-  </div>
-</div>
-<div class="fc" id="fc7" onclick="toggleFc(this,'fc7','SUPER LOCK AIM','Aim siêu dính đã bật')">
-  <div class="iw">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
-      <circle cx="12" cy="12" r="8"/>
-      <line x1="12" y1="4" x2="12" y2="20"/>
-      <line x1="4" y1="12" x2="20" y2="12"/>
-    </svg>
-  </div>
-  <div class="inf">
-    <div class="nm">SUPER LOCK AIM</div>
-    <div class="ds"><span class="dot"></span>Aim siêu chính xác</div>
-    <span class="stag off" id="tg-fc7"><span class="bl"></span> Chưa bật</span>
-  </div>
-  <div class="tgl" id="tb-fc7">
-    <div class="rs2"></div><div class="rs"></div><div class="ro"></div>
-    <svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
-  </div>
-</div>
-    <div class="fc" id="fc4" onclick="toggleFc(this,'fc4','Trick Head','Bắn đầu tự động đang bật')">
+
+    <div class="fc locked" id="fc5" onclick="handleFeatureClick(event,this,'fc5','ULTRALOCK','Khóa tâm nâng cao đã bật')">
+      <div class="lock-overlay">🔒</div>
+      <div class="iw">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2">
+          <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+      <div class="inf">
+        <div class="nm">ULTRALOCK</div>
+        <div class="ds"><span class="dot"></span>Độ chính xác cao</div>
+        <span class="stag off" id="tg-fc5"><span class="bl"></span> Chưa bật</span>
+      </div>
+      <div class="tgl" id="tb-fc5"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></div>
+    </div>
+
+    <div class="fc locked" id="fc6" onclick="handleFeatureClick(event,this,'fc6','ULTIMATE LOCK','Khóa tâm tối đa đã bật')">
+      <div class="lock-overlay">🔒</div>
+      <div class="iw">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2">
+          <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/>
+        </svg>
+      </div>
+      <div class="inf">
+        <div class="nm">ULTIMATE LOCK</div>
+        <div class="ds"><span class="dot"></span>Hiệu suất max level</div>
+        <span class="stag off" id="tg-fc6"><span class="bl"></span> Chưa bật</span>
+      </div>
+      <div class="tgl" id="tb-fc6"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></div>
+    </div>
+
+    <div class="fc locked" id="fc7" onclick="handleFeatureClick(event,this,'fc7','SUPER LOCK AIM','Aim siêu dính đã bật')">
+      <div class="lock-overlay">🔒</div>
+      <div class="iw">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+          <circle cx="12" cy="12" r="8"/>
+          <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
+        </svg>
+      </div>
+      <div class="inf">
+        <div class="nm">SUPER LOCK AIM</div>
+        <div class="ds"><span class="dot"></span>Aim siêu chính xác</div>
+        <span class="stag off" id="tg-fc7"><span class="bl"></span> Chưa bật</span>
+      </div>
+      <div class="tgl" id="tb-fc7"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></div>
+    </div>
+
+    <div class="fc locked" id="fc4" onclick="handleFeatureClick(event,this,'fc4','Trick Head','Bắn đầu tự động đang bật')">
+      <div class="lock-overlay">🔒</div>
       <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
       <div class="inf">
         <div class="nm">Trick Head</div>
@@ -328,6 +386,12 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
           <div class="key-btn-sub">Nhập key để mở khóa toàn bộ tính năng</div>
         </div>
         <div class="key-btn-arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </button>
+    </div>
+
+    <div class="mua-key-zone">
+      <button class="btn-mua-key" onclick="openPayMol()">
+        💳 MUA KEY NGAY
       </button>
     </div>
 
@@ -349,7 +413,7 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
     <div class="footer-copy">© 2025 SUPERVNA · ALL RIGHTS RESERVED</div>
   </footer>
 
-  <!-- MODAL (inside phone-wrap) -->
+  <!-- LICENSE MODAL -->
   <div id="mol" onclick="molClose(event)">
     <div class="mbox">
       <div class="m-handle-wrap"><div class="m-handle"></div></div>
@@ -372,7 +436,7 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
       </div>
       <div class="m-body">
         <div class="m-stats">
-          <div class="m-stat"><div class="m-stat-val">4</div><div class="m-stat-lbl">FEATURES</div></div>
+          <div class="m-stat"><div class="m-stat-val">7</div><div class="m-stat-lbl">FEATURES</div></div>
           <div class="m-stat"><div class="m-stat-val red">PRO</div><div class="m-stat-lbl">PLAN</div></div>
           <div class="m-stat"><div class="m-stat-val">99%</div><div class="m-stat-lbl">STABLE</div></div>
         </div>
@@ -386,13 +450,17 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
             <input class="key-inp" id="kinp" type="text" placeholder="HH-XXXX-XXXX-XXXX....">
           </div>
         </div>
-        <button class="btn-act" onclick="doActivate()">⚡ KÍCH HOẠT NGAY</button>
-        <div class="div-txt">Hoặc lấy key miễn phí 🎁</div>
+        <button class="btn-act" id="btn-act" onclick="doActivate()">⚡ KÍCH HOẠT NGAY</button>
+        <div class="div-txt">Hoặc chọn một tùy chọn bên dưới</div>
         <button class="btn-free" onclick="doFree()">
           <span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M12 8s2-2 4-2-4 6-4 6M12 8S10 6 8 6s4 6 4 6"/></svg>
             Xem key miễn phí tại trang Info
           </span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button class="btn-mua-key-mol" onclick="closeMol(); openPayMol();">
+          <span>👉 Mua key ngay</span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
         <div class="m-feats">
@@ -406,15 +474,87 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
     </div>
   </div>
 
+  <!-- PAYMENT MODAL -->
+  <div id="pay-mol" onclick="payMolClose(event)">
+    <div class="pay-box">
+      <div class="m-handle-wrap"><div class="m-handle"></div></div>
+      <div class="pay-head">
+        <div class="pay-title">💎 Nâng cấp tài khoản</div>
+        <div class="pay-close" onclick="closePayMol()">✕</div>
+      </div>
+      <div class="pay-body">
+        <div class="pay-plans">
+          <div class="plan-card basic">
+            <div class="plan-ico">🌱</div>
+            <div>
+              <div class="plan-name">Gói Cơ Bản</div>
+              <div class="plan-price">100.000đ</div>
+            </div>
+          </div>
+          <div class="plan-card pro">
+            <div class="plan-ico">⚡</div>
+            <div>
+              <div class="plan-name">Gói Pro 1OB Ngày</div>
+              <div class="plan-price">300.000đ</div>
+            </div>
+          </div>
+          <div class="plan-card life">
+            <div class="plan-ico">👑</div>
+            <div>
+              <div class="plan-name">Gói Vĩnh Viễn</div>
+              <div class="plan-price">700.000đ</div>
+            </div>
+          </div>
+        </div>
+        <div class="pay-qr-section">
+          <div class="pay-qr-lbl">📷 Quét mã QR để thanh toán</div>
+          <img class="pay-qr-img" src="https://i.ibb.co/0R8RVXdz/anh-chuy-n-kho-n.jpg" alt="QR chuyển khoản" onerror="this.style.background='rgba(180,0,255,0.1)';this.alt='QR Code';">
+        </div>
+        <div class="pay-note">
+          📝 Nội dung chuyển khoản: <strong>TÊN GÓI + SỐ ĐIỆN THOẠI</strong>
+        </div>
+        <button class="btn-paid" onclick="closePayMol(); showToast('success','Cảm ơn bạn!','Liên hệ admin để nhận key kích hoạt 🎉')">✅ Tôi đã thanh toán</button>
+      </div>
+    </div>
+  </div>
+
 </div><!-- end phone-wrap -->
 
 <script>
 (function () {
   'use strict';
 
+  // ── CONFIG ──
+  var API_BASE     = 'https://api.dak.edu.vn';
+  var API_ENDPOINT = '/yna_api/license.php?action=check';
+
+  // ── STATE ──
+  var isActivated = false;
+  var DEVICE_ID   = null;
+
+  // ── DEVICE ID (SHA-256 of userAgent + screen size) ──
+  async function generateDeviceId() {
+    var raw = navigator.userAgent + '|' + screen.width + 'x' + screen.height;
+    try {
+      var enc = new TextEncoder().encode(raw);
+      var buf = await crypto.subtle.digest('SHA-256', enc);
+      var arr = Array.from(new Uint8Array(buf));
+      return arr.map(function(b){ return b.toString(16).padStart(2,'0'); }).join('').toUpperCase().slice(0, 32);
+    } catch(e) {
+      // Fallback if subtle not available
+      return 'DEV-' + Math.random().toString(36).substr(2,9).toUpperCase();
+    }
+  }
+
+  async function getDeviceId() {
+    var cached = localStorage.getItem('svna_device_id');
+    if (cached) return cached;
+    var id = await generateDeviceId();
+    localStorage.setItem('svna_device_id', id);
+    return id;
+  }
+
   // ── SOUND ENGINE ──
-  // Howler.js đã load, nhưng pip ngắn phù hợp hơn với Web Audio API trực tiếp.
-  // Khởi tạo AudioContext một lần duy nhất, tránh duplicate declaration.
   var audioCtx = null;
   function getAC() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -470,33 +610,60 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
     }, dur);
   }
 
-  // ── MODAL ──
-  function openMol()  { document.getElementById('mol').classList.add('open'); }
-  function closeMol() { document.getElementById('mol').classList.remove('open'); }
-  function molClose(e){ if (e.target === document.getElementById('mol')) closeMol(); }
-
-  // ── ACTIVATE ──
-  function doActivate() {
-    var v = document.getElementById('kinp').value.trim();
-    if (!v)        { showToast('error', 'Thiếu key', 'Vui lòng nhập key kích hoạt!'); return; }
-    if (v.length < 8) { showToast('error', 'Key không hợp lệ', 'Thử lại với key đúng định dạng'); return; }
-    showToast('info', 'Đang xác thực', 'Vui lòng chờ trong giây lát...', 2000);
-    setTimeout(function () {
-      sndOn();
-      showToast('success', 'Kích hoạt thành công!', 'Chào mừng đến SuperVNA 🎉');
-      var b = document.getElementById('btn-login');
-      b.textContent = '✅ ĐÃ KÍCH HOẠT';
-      b.classList.add('ok');
-      closeMol();
-    }, 2100);
-  }
-  function doFree() {
-    sndClick();
-    showToast('info', 'Key miễn phí', 'Liên hệ Nhên Developer để nhận key!');
-    closeMol();
+  // ── LICENSE API ──
+  async function checkKey(key) {
+    var resp = await fetch(API_BASE + API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: key, device_id: DEVICE_ID })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
   }
 
-  // ── TOGGLE ──
+  // ── UI LOCK / UNLOCK ──
+  function lockUI() {
+    isActivated = false;
+    document.querySelectorAll('.fc').forEach(function(card) {
+      card.classList.add('locked');
+      if (!card.querySelector('.lock-overlay')) {
+        var ov = document.createElement('div');
+        ov.className = 'lock-overlay';
+        ov.textContent = '🔒';
+        card.appendChild(ov);
+      }
+    });
+    var sl = document.getElementById('status-label');
+    if (sl) { sl.textContent = '• Chưa kích hoạt'; sl.style.color = 'var(--red)'; }
+    var bl = document.getElementById('btn-login');
+    if (bl) { bl.textContent = '🔑 LOGIN'; bl.classList.remove('ok'); }
+  }
+
+  function unlockUI() {
+    isActivated = true;
+    document.querySelectorAll('.fc').forEach(function(card) {
+      card.classList.remove('locked');
+      var ov = card.querySelector('.lock-overlay');
+      if (ov) ov.remove();
+    });
+    var sl = document.getElementById('status-label');
+    if (sl) { sl.textContent = '• Đã kích hoạt'; sl.style.color = 'var(--green)'; }
+    var bl = document.getElementById('btn-login');
+    if (bl) { bl.textContent = '✅ ĐÃ KÍCH HOẠT'; bl.classList.add('ok'); }
+  }
+
+  // ── MODAL CONTROLS ──
+  function showLicensePopup() { document.getElementById('mol').classList.add('open'); }
+  function openMol()          { showLicensePopup(); }
+  function closeMol()         { document.getElementById('mol').classList.remove('open'); }
+  function molClose(e)        { if (e.target === document.getElementById('mol')) closeMol(); }
+
+  function showPaymentPopup() { document.getElementById('pay-mol').classList.add('open'); sndClick(); }
+  function openPayMol()       { showPaymentPopup(); }
+  function closePayMol()      { document.getElementById('pay-mol').classList.remove('open'); }
+  function payMolClose(e)     { if (e.target === document.getElementById('pay-mol')) closePayMol(); }
+
+  // ── FEATURE TOGGLE ──
   function toggleFc(card, id, name, desc) {
     var tb = document.getElementById('tb-' + id);
     var tg = document.getElementById('tg-' + id);
@@ -507,38 +674,125 @@ main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:aut
     if (!isOn) {
       sndOn();
       card.classList.add('on'); tb.classList.add('on');
-      card.querySelector('.iw svg').setAttribute('stroke', '#00ff87');
+      var svg = card.querySelector('.iw svg');
+      if (svg) svg.setAttribute('stroke', '#00ff87');
       tg.className = 'stag on';
       tg.innerHTML = '<span class="bl"></span> Đang chạy';
       showToast('success', name + ' BẬT', desc);
     } else {
       sndOff();
       card.classList.remove('on'); tb.classList.remove('on');
-      card.querySelector('.iw svg').setAttribute('stroke', '#ff2d55');
+      var svg2 = card.querySelector('.iw svg');
+      if (svg2) svg2.setAttribute('stroke', '#ff2d55');
       tg.className = 'stag off';
       tg.innerHTML = '<span class="bl"></span> Chưa bật';
       showToast('error', name + ' TẮT', 'Tính năng đã vô hiệu hóa');
     }
   }
 
-  // ── TABS ──
-  function selectTab(el, name) {
-    sndClick();
-    var tabs = document.querySelectorAll('.tab');
-    for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('on');
-    el.classList.add('on');
-    showToast('info', 'Chế độ nhắm', 'Target zone: ' + name);
+  // ── HANDLE FEATURE CLICK (gate) ──
+  function handleFeatureClick(event, card, id, name, desc) {
+    if (card.classList.contains('locked')) {
+      event.preventDefault();
+      event.stopPropagation();
+      sndOff();
+      showToast('error', 'Chưa kích hoạt', 'Vui lòng nhập key để sử dụng');
+      showLicensePopup();
+      return;
+    }
+    toggleFc(card, id, name, desc);
   }
 
-  // Expose to inline onclick handlers
-  window.openMol    = openMol;
-  window.closeMol   = closeMol;
-  window.molClose   = molClose;
-  window.doActivate = doActivate;
-  window.doFree     = doFree;
-  window.toggleFc   = toggleFc;
-  window.selectTab  = selectTab;
-  window.showToast  = showToast;
+  // ── ACTIVATE ──
+  async function doActivate() {
+    var inp = document.getElementById('kinp');
+    var btn = document.getElementById('btn-act');
+    var v   = inp.value.trim();
+
+    if (!v)          { showToast('error', 'Thiếu key', 'Vui lòng nhập key kích hoạt!'); return; }
+    if (v.length < 6){ showToast('error', 'Key không hợp lệ', 'Thử lại với key đúng định dạng'); return; }
+
+    inp.disabled = true;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> ĐANG XÁC THỰC...';
+    showToast('info', 'Đang xác thực', 'Vui lòng chờ trong giây lát...', 4000);
+
+    try {
+      var result = await checkKey(v);
+      if (result && result.status === 'success') {
+        localStorage.setItem('license_key',  v);
+        localStorage.setItem('device_id',    DEVICE_ID);
+        localStorage.setItem('isActivated',  'true');
+        unlockUI();
+        sndOn();
+        showToast('success', 'Kích hoạt thành công!', 'Chào mừng đến SuperVNA 🎉');
+        closeMol();
+      } else {
+        var msg = (result && result.message) ? result.message : 'Key không hợp lệ hoặc đã hết hạn';
+        sndOff();
+        showToast('error', 'Kích hoạt thất bại', msg);
+      }
+    } catch (err) {
+      sndOff();
+      showToast('error', 'Lỗi kết nối', 'Không thể kết nối máy chủ. Thử lại sau!');
+    } finally {
+      inp.disabled = false;
+      btn.disabled = false;
+      btn.innerHTML = '⚡ KÍCH HOẠT NGAY';
+    }
+  }
+
+  function doFree() {
+    sndClick();
+    showToast('info', 'Key miễn phí', 'Liên hệ Nhên Developer để nhận key!');
+    closeMol();
+  }
+
+  // ── AUTO LOGIN — check saved key on load ──
+  async function autoCheckSavedKey() {
+    var savedKey = localStorage.getItem('license_key');
+    var savedAct = localStorage.getItem('isActivated');
+    if (!savedKey || savedAct !== 'true') return;
+
+    try {
+      var result = await checkKey(savedKey);
+      if (result && result.status === 'success') {
+        unlockUI();
+        showToast('success', 'Tự động kích hoạt', 'Key hợp lệ — SuperVNA đã sẵn sàng!', 2500);
+      } else {
+        localStorage.removeItem('license_key');
+        localStorage.removeItem('device_id');
+        localStorage.removeItem('isActivated');
+        lockUI();
+        showToast('info', 'Key hết hạn', 'Vui lòng kích hoạt lại');
+      }
+    } catch (err) {
+      // Network error: keep locked, preserve key for retry
+      lockUI();
+    }
+  }
+
+  // ── EXPOSE GLOBALS ──
+  window.openMol            = openMol;
+  window.closeMol           = closeMol;
+  window.molClose           = molClose;
+  window.openPayMol         = openPayMol;
+  window.closePayMol        = closePayMol;
+  window.payMolClose        = payMolClose;
+  window.showLicensePopup   = showLicensePopup;
+  window.showPaymentPopup   = showPaymentPopup;
+  window.doActivate         = doActivate;
+  window.doFree             = doFree;
+  window.handleFeatureClick = handleFeatureClick;
+  window.toggleFc           = toggleFc;
+  window.showToast          = showToast;
+
+  // ── INIT ──
+  (async function init() {
+    DEVICE_ID = await getDeviceId();
+    lockUI();
+    autoCheckSavedKey();
+  })();
 
 })();
 </script>
