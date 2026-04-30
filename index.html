@@ -2270,7 +2270,7 @@
         return id;
       }
 
-      // ── DEBUG ALERT (RẤT QUAN TRỌNG cho WebViewer) ──
+      // ── DEBUG ALERT ──
       function debugAlert(step, info) {
         alert(`[DEBUG ${step}]\n${info}`);
       }
@@ -2282,7 +2282,6 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
         return audioCtx;
       }
-
       function beep(freq, t0, dur, vol) {
         var ctx = getAC();
         var osc = ctx.createOscillator();
@@ -2297,21 +2296,9 @@
         osc.start(t0);
         osc.stop(t0 + dur + 0.025);
       }
-
-      function sndOn() {
-        var t = getAC().currentTime;
-        beep(880, t, 0.07, 0.15);
-        beep(1320, t + 0.1, 0.09, 0.15);
-      }
-      function sndOff() {
-        var t = getAC().currentTime;
-        beep(660, t, 0.07, 0.12);
-        beep(440, t + 0.1, 0.10, 0.10);
-      }
-      function sndClick() {
-        var t = getAC().currentTime;
-        beep(1100, t, 0.055, 0.09);
-      }
+      function sndOn() { var t = getAC().currentTime; beep(880, t, 0.07, 0.15); beep(1320, t + 0.1, 0.09, 0.15); }
+      function sndOff() { var t = getAC().currentTime; beep(660, t, 0.07, 0.12); beep(440, t + 0.1, 0.10, 0.10); }
+      function sndClick() { var t = getAC().currentTime; beep(1100, t, 0.055, 0.09); }
 
       // ── TOAST ──
       var ICONS = { success: '✅', error: '❌', info: 'ℹ️' };
@@ -2333,15 +2320,19 @@
         }, dur);
       }
 
-      // ── CHECK KEY - TỐI ƯU CHO WEBVIEWER ──
+      // ── CHECK KEY ──
       async function checkKey(key) {
+        // Kiểm tra DEVICE_ID trước khi gọi API
+        if (!DEVICE_ID) {
+          debugAlert("LỖI", "DEVICE_ID vẫn là null!\nĐang tạo lại...");
+          DEVICE_ID = getDeviceId();
+        }
+
         const url = API_BASE + API_ENDPOINT + '&t=' + Date.now();
 
         debugAlert("1. START", "Device ID: " + DEVICE_ID + "\nKey: " + key.substring(0, 15) + "...");
 
         try {
-          debugAlert("2. FETCH", "Đang gọi API:\n" + url);
-
           const resp = await fetch(url, {
             method: 'POST',
             headers: {
@@ -2353,23 +2344,20 @@
               key: key,
               device_id: DEVICE_ID
             }),
-            cache: 'no-store',
-            redirect: 'follow'
+            cache: 'no-store'
           });
 
-          debugAlert("3. STATUS", "Response Status: " + resp.status + " " + resp.statusText);
+          debugAlert("2. STATUS", "Response: " + resp.status);
 
-          if (!resp.ok) {
-            throw new Error('HTTP Error: ' + resp.status);
-          }
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
 
           const result = await resp.json();
-          debugAlert("4. RESULT", JSON.stringify(result, null, 2));
+          debugAlert("3. RESULT", JSON.stringify(result));
 
           return result;
 
         } catch (err) {
-          debugAlert("ERROR", "Lỗi khi gọi API:\n" + (err.message || err));
+          debugAlert("ERROR", err.message || err);
           throw err;
         }
       }
@@ -2405,7 +2393,7 @@
         if (bl) { bl.textContent = '✅ ĐÃ KÍCH HOẠT'; bl.classList.add('ok'); }
       }
 
-      // ── MODAL CONTROLS ──
+      // ── MODAL ──
       function showLicensePopup() { document.getElementById('mol').classList.add('open'); }
       function openMol() { showLicensePopup(); }
       function closeMol() { document.getElementById('mol').classList.remove('open'); }
@@ -2416,7 +2404,7 @@
       function closePayMol() { document.getElementById('pay-mol').classList.remove('open'); }
       function payMolClose(e) { if (e.target === document.getElementById('pay-mol')) closePayMol(); }
 
-      // ── FEATURE TOGGLE ──
+      // ── FEATURE ──
       function toggleFc(card, id, name, desc) {
         var tb = document.getElementById('tb-' + id);
         var tg = document.getElementById('tg-' + id);
@@ -2427,8 +2415,7 @@
 
         if (!isOn) {
           sndOn();
-          card.classList.add('on');
-          tb.classList.add('on');
+          card.classList.add('on'); tb.classList.add('on');
           var svg = card.querySelector('.iw svg');
           if (svg) svg.setAttribute('stroke', '#00ff87');
           tg.className = 'stag on';
@@ -2436,8 +2423,7 @@
           showToast('success', name + ' BẬT', desc);
         } else {
           sndOff();
-          card.classList.remove('on');
-          tb.classList.remove('on');
+          card.classList.remove('on'); tb.classList.remove('on');
           var svg2 = card.querySelector('.iw svg');
           if (svg2) svg2.setAttribute('stroke', '#ff2d55');
           tg.className = 'stag off';
@@ -2446,7 +2432,6 @@
         }
       }
 
-      // ── HANDLE FEATURE CLICK ──
       function handleFeatureClick(event, card, id, name, desc) {
         if (card.classList.contains('locked')) {
           event.preventDefault();
@@ -2471,7 +2456,6 @@
         inp.disabled = true;
         btn.disabled = true;
         btn.innerHTML = '<div class="spinner"></div> ĐANG XÁC THỰC...';
-        showToast('info', 'Đang xác thực', 'Vui lòng chờ trong giây lát...', 4000);
 
         try {
           var result = await checkKey(v);
@@ -2504,7 +2488,7 @@
         closeMol();
       }
 
-      // ── AUTO CHECK SAVED KEY ──
+      // ── AUTO CHECK ──
       async function autoCheckSavedKey() {
         var savedKey = localStorage.getItem('license_key');
         var savedAct = localStorage.getItem('isActivated');
@@ -2514,29 +2498,28 @@
           var result = await checkKey(savedKey);
           if (result && result.status === 'success') {
             unlockUI();
-            showToast('success', 'Tự động kích hoạt', 'Key hợp lệ — SuperVNA đã sẵn sàng!', 2500);
+            showToast('success', 'Tự động kích hoạt', 'Key hợp lệ!', 2500);
           } else {
             localStorage.removeItem('license_key');
             localStorage.removeItem('device_id');
             localStorage.removeItem('isActivated');
             lockUI();
-            showToast('info', 'Key hết hạn', 'Vui lòng kích hoạt lại');
           }
         } catch (err) {
           lockUI();
         }
       }
 
-      // ── INIT ──
+      // ── INIT - SỬA LỖI CHÍNH ──
       (async function init() {
-        DEVICE_ID = getDeviceId();
-        debugAlert("0. INIT", "Ứng dụng khởi động\nDevice ID: " + DEVICE_ID);
+        DEVICE_ID = getDeviceId();           // Đảm bảo DEVICE_ID được gán trước
+        debugAlert("0. INIT", "Device ID đã tạo: " + DEVICE_ID);
 
         lockUI();
-        autoCheckSavedKey();
+        await autoCheckSavedKey();           // Dùng await để chờ
       })();
 
-      // ── EXPOSE TO GLOBAL ──
+      // ── EXPOSE ──
       window.openMol = openMol;
       window.closeMol = closeMol;
       window.molClose = molClose;
