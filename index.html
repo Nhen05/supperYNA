@@ -2234,7 +2234,6 @@
     </div>
 
   </div><!-- end phone-wrap -->
-
   <script>
     (function () {
       'use strict';
@@ -2247,19 +2246,21 @@
       var isActivated = false;
       var DEVICE_ID = null;
 
+      // ── DEVICE ID ──
       function generateDeviceId() {
         var raw = navigator.userAgent + '|' +
           screen.width + 'x' + screen.height + '|' +
-          (new Date().getTime());
+          Date.now();
 
         var hash = 0;
         for (var i = 0; i < raw.length; i++) {
           var chr = raw.charCodeAt(i);
           hash = ((hash << 5) - hash) + chr;
-          hash = hash & hash; // Convert to 32bit integer
+          hash = hash & hash;
         }
         return 'DEV-' + Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
       }
+
       function getDeviceId() {
         var cached = localStorage.getItem('svna_device_id');
         if (cached) return cached;
@@ -2269,6 +2270,11 @@
         return id;
       }
 
+      // ── DEBUG ALERT (RẤT QUAN TRỌNG cho WebViewer) ──
+      function debugAlert(step, info) {
+        alert(`[DEBUG ${step}]\n${info}`);
+      }
+
       // ── SOUND ENGINE ──
       var audioCtx = null;
       function getAC() {
@@ -2276,6 +2282,7 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
         return audioCtx;
       }
+
       function beep(freq, t0, dur, vol) {
         var ctx = getAC();
         var osc = ctx.createOscillator();
@@ -2290,6 +2297,7 @@
         osc.start(t0);
         osc.stop(t0 + dur + 0.025);
       }
+
       function sndOn() {
         var t = getAC().currentTime;
         beep(880, t, 0.07, 0.15);
@@ -2325,10 +2333,15 @@
         }, dur);
       }
 
+      // ── CHECK KEY - TỐI ƯU CHO WEBVIEWER ──
       async function checkKey(key) {
-        const url = API_BASE + API_ENDPOINT + '&t=' + Date.now();   // chống cache
+        const url = API_BASE + API_ENDPOINT + '&t=' + Date.now();
+
+        debugAlert("1. START", "Device ID: " + DEVICE_ID + "\nKey: " + key.substring(0, 15) + "...");
 
         try {
+          debugAlert("2. FETCH", "Đang gọi API:\n" + url);
+
           const resp = await fetch(url, {
             method: 'POST',
             headers: {
@@ -2344,16 +2357,19 @@
             redirect: 'follow'
           });
 
+          debugAlert("3. STATUS", "Response Status: " + resp.status + " " + resp.statusText);
+
           if (!resp.ok) {
-            throw new Error('HTTP ' + resp.status);
+            throw new Error('HTTP Error: ' + resp.status);
           }
 
           const result = await resp.json();
-          console.log('API Response:', result);   // Quan trọng để debug
+          debugAlert("4. RESULT", JSON.stringify(result, null, 2));
+
           return result;
 
         } catch (err) {
-          console.error('CheckKey Error:', err);
+          debugAlert("ERROR", "Lỗi khi gọi API:\n" + (err.message || err));
           throw err;
         }
       }
@@ -2408,9 +2424,11 @@
         tb.classList.remove('pop');
         void tb.offsetWidth;
         tb.classList.add('pop');
+
         if (!isOn) {
           sndOn();
-          card.classList.add('on'); tb.classList.add('on');
+          card.classList.add('on');
+          tb.classList.add('on');
           var svg = card.querySelector('.iw svg');
           if (svg) svg.setAttribute('stroke', '#00ff87');
           tg.className = 'stag on';
@@ -2418,7 +2436,8 @@
           showToast('success', name + ' BẬT', desc);
         } else {
           sndOff();
-          card.classList.remove('on'); tb.classList.remove('on');
+          card.classList.remove('on');
+          tb.classList.remove('on');
           var svg2 = card.querySelector('.iw svg');
           if (svg2) svg2.setAttribute('stroke', '#ff2d55');
           tg.className = 'stag off';
@@ -2427,7 +2446,7 @@
         }
       }
 
-      // ── HANDLE FEATURE CLICK (gate) ──
+      // ── HANDLE FEATURE CLICK ──
       function handleFeatureClick(event, card, id, name, desc) {
         if (card.classList.contains('locked')) {
           event.preventDefault();
@@ -2485,7 +2504,7 @@
         closeMol();
       }
 
-      // ── AUTO LOGIN — check saved key on load ──
+      // ── AUTO CHECK SAVED KEY ──
       async function autoCheckSavedKey() {
         var savedKey = localStorage.getItem('license_key');
         var savedAct = localStorage.getItem('isActivated');
@@ -2504,12 +2523,20 @@
             showToast('info', 'Key hết hạn', 'Vui lòng kích hoạt lại');
           }
         } catch (err) {
-          // Network error: keep locked, preserve key for retry
           lockUI();
         }
       }
 
-      // ── EXPOSE GLOBALS ──
+      // ── INIT ──
+      (async function init() {
+        DEVICE_ID = getDeviceId();
+        debugAlert("0. INIT", "Ứng dụng khởi động\nDevice ID: " + DEVICE_ID);
+
+        lockUI();
+        autoCheckSavedKey();
+      })();
+
+      // ── EXPOSE TO GLOBAL ──
       window.openMol = openMol;
       window.closeMol = closeMol;
       window.molClose = molClose;
@@ -2523,13 +2550,6 @@
       window.handleFeatureClick = handleFeatureClick;
       window.toggleFc = toggleFc;
       window.showToast = showToast;
-
-      // ── INIT ──
-      (async function init() {
-        DEVICE_ID = getDeviceId();
-        lockUI();
-        autoCheckSavedKey();
-      })();
 
     })();
   </script>
