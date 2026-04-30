@@ -1,801 +1,2538 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SuperVNA - Game Tool Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="shortcut icon" href="favicon.jpg" type="image/x-icon">
-<style>
-:root {
-  --green: #00ff87; --green-dark: #00c060; --green-glow: rgba(0,255,135,0.35);
-  --red: #ff2d55;   --red-glow: rgba(255,45,85,0.35);
-  --bg: #0a0a0f; --card: rgba(16,16,26,0.97); --border: rgba(0,255,135,0.13);
-  --text: #e2e8f0; --muted: #64748b;
-}
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-html,body { width:100%; height:100%; background:#050507; display:flex; justify-content:center; overflow-x:hidden; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SuperVNA - Game Tool Pro</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="shortcut icon" href="favicon.jpg" type="image/x-icon">
+  <style>
+    :root {
+      --green: #00ff87;
+      --green-dark: #00c060;
+      --green-glow: rgba(0, 255, 135, 0.35);
+      --red: #ff2d55;
+      --red-glow: rgba(255, 45, 85, 0.35);
+      --bg: #0a0a0f;
+      --card: rgba(16, 16, 26, 0.97);
+      --border: rgba(0, 255, 135, 0.13);
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
 
-/* PHONE */
-.phone-wrap { width:100%; max-width:390px; min-height:100vh; background:var(--bg); position:relative; display:flex; flex-direction:column; overflow:hidden; font-family:'Exo 2',sans-serif; color:var(--text); }
-.phone-wrap::before { content:''; position:absolute; inset:0; pointer-events:none; z-index:0; background:radial-gradient(ellipse 70% 32% at 50% 0%,rgba(0,255,135,0.09) 0%,transparent 55%),radial-gradient(ellipse 55% 28% at 90% 88%,rgba(255,45,85,0.07) 0%,transparent 50%); }
-.grid-bg { position:absolute; inset:0; z-index:0; pointer-events:none; opacity:0.032; background-image:linear-gradient(rgba(0,255,135,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,135,1) 1px,transparent 1px); background-size:36px 36px; }
-.scanlines { position:absolute; inset:0; z-index:0; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.022) 2px,rgba(0,0,0,0.022) 4px); }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-/* TOAST */
-#toast-container { position:absolute; top:70px; right:10px; z-index:9999; display:flex; flex-direction:column; gap:8px; width:200px; pointer-events:none; }
-.toast { display:flex; align-items:center; gap:9px; padding:10px 12px; border-radius:14px; font-family:'Rajdhani',sans-serif; backdrop-filter:blur(22px); border:1px solid; animation:toastIn 0.42s cubic-bezier(.34,1.56,.64,1) forwards; pointer-events:auto; position:relative; overflow:hidden; }
-.toast::after { content:''; position:absolute; top:0; left:0; right:0; height:1.5px; border-radius:14px 14px 0 0; }
-.toast.success { background:rgba(0,16,9,0.95); border-color:rgba(0,255,135,0.42); color:#ccf5e0; box-shadow:0 0 20px rgba(0,255,135,0.15),0 8px 30px rgba(0,0,0,0.75); }
-.toast.error   { background:rgba(16,3,6,0.95);  border-color:rgba(255,45,85,0.42);  color:#f5ccd4; box-shadow:0 0 20px rgba(255,45,85,0.15),0 8px 30px rgba(0,0,0,0.75); }
-.toast.info    { background:rgba(6,6,22,0.95);  border-color:rgba(129,140,248,0.4); color:#c7d2fe; box-shadow:0 0 20px rgba(99,102,241,0.15),0 8px 30px rgba(0,0,0,0.75); }
-.toast.success::after { background:linear-gradient(90deg,transparent,var(--green),transparent); }
-.toast.error::after   { background:linear-gradient(90deg,transparent,var(--red),transparent); }
-.toast.info::after    { background:linear-gradient(90deg,transparent,#818cf8,transparent); }
-.toast.hide { animation:toastOut 0.28s ease forwards; }
-@keyframes toastIn  { from{opacity:0;transform:translateX(36px) scale(0.86)} to{opacity:1;transform:translateX(0) scale(1)} }
-@keyframes toastOut { from{opacity:1;transform:translateX(0) scale(1)} to{opacity:0;transform:translateX(24px) scale(0.93)} }
-.t-icon { width:28px; height:28px; flex-shrink:0; display:flex; align-items:center; justify-content:center; position:relative; }
-.t-ring  { position:absolute; inset:-2px; border-radius:50%; border:2px solid transparent; animation:tSpin 1.1s linear infinite; }
-.t-ring2 { position:absolute; inset:2px;  border-radius:50%; border:1.5px solid transparent; animation:tSpin 2.2s linear infinite reverse; }
-.toast.success .t-ring  { border-top-color:var(--green); border-right-color:rgba(0,255,135,0.28); }
-.toast.success .t-ring2 { border-bottom-color:rgba(0,255,135,0.18); }
-.toast.error   .t-ring  { border-top-color:var(--red); border-right-color:rgba(255,45,85,0.28); animation-direction:reverse; }
-.toast.error   .t-ring2 { border-bottom-color:rgba(255,45,85,0.18); animation-direction:normal; }
-.toast.info    .t-ring  { border-top-color:#818cf8; border-right-color:rgba(129,140,248,0.28); }
-.toast.info    .t-ring2 { border-bottom-color:rgba(129,140,248,0.18); }
-@keyframes tSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-.t-inner { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; position:relative; z-index:1; }
-.toast.success .t-inner { background:rgba(0,255,135,0.1); }
-.toast.error   .t-inner { background:rgba(255,45,85,0.1); }
-.toast.info    .t-inner { background:rgba(99,102,241,0.1); }
-.t-text { flex:1; min-width:0; }
-.t-title { font-size:10.5px; font-weight:700; letter-spacing:0.2px; line-height:1.25; }
-.t-sub   { font-size:9px; opacity:0.55; font-weight:500; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.t-bar { position:absolute; bottom:0; left:0; height:2px; border-radius:0 0 14px 14px; animation:tBar 3.2s linear forwards; }
-.toast.success .t-bar { background:var(--green); }
-.toast.error   .t-bar { background:var(--red); }
-.toast.info    .t-bar { background:#818cf8; }
-@keyframes tBar { from{width:100%} to{width:0%} }
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: #050507;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
 
-/* HEADER */
-.header { position:relative; z-index:10; padding:13px 15px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); background:rgba(6,6,12,0.94); backdrop-filter:blur(24px); flex-shrink:0; }
-.logo { font-family:'Orbitron',monospace; font-weight:900; font-size:18px; letter-spacing:2px; background:linear-gradient(135deg,#fff 0%,var(--green) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.logo em { font-style:normal; -webkit-text-fill-color:var(--red); }
-.s-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:sdPulse 2s infinite; }
-@keyframes sdPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.btn-login { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:11.5px; letter-spacing:1px; padding:6px 13px; border-radius:8px; border:1px solid rgba(0,255,135,0.38); background:transparent; color:var(--green); cursor:pointer; transition:all 0.3s; }
-.btn-login.ok { background:rgba(0,255,135,0.1); }
+    /* PHONE */
+    .phone-wrap {
+      width: 100%;
+      max-width: 390px;
+      min-height: 100vh;
+      background: var(--bg);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-family: 'Exo 2', sans-serif;
+      color: var(--text);
+    }
 
-/* MAIN */
-main { position:relative; z-index:5; padding:13px 14px 0; flex:1; overflow-y:auto; }
-.badge-upd { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; background:rgba(0,255,135,0.07); border:1px solid rgba(0,255,135,0.22); font-family:'Rajdhani',sans-serif; font-size:11px; font-weight:700; color:var(--green); letter-spacing:1px; cursor:pointer; }
-.badge-upd .v { background:var(--green); color:#000; padding:1px 6px; border-radius:10px; font-size:9px; }
-.sec-lbl { font-family:'Rajdhani',sans-serif; font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin:15px 0 8px; }
-.sec-lbl em { font-style:normal; color:var(--red); margin-right:5px; }
+    .phone-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(ellipse 70% 32% at 50% 0%, rgba(0, 255, 135, 0.09) 0%, transparent 55%), radial-gradient(ellipse 55% 28% at 90% 88%, rgba(255, 45, 85, 0.07) 0%, transparent 50%);
+    }
 
-/* FEATURE CARD */
-.fc { background:var(--card); border:1px solid rgba(255,255,255,0.048); border-radius:14px; padding:12px; display:flex; align-items:center; gap:12px; margin-bottom:8px; cursor:pointer; transition:all 0.33s cubic-bezier(.4,0,.2,1); position:relative; overflow:hidden; }
-.fc::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--red); opacity:0.55; transition:all 0.3s; }
-.fc.on::before { background:var(--green); opacity:1; }
-.fc:active { transform:scale(0.985); }
-.fc .iw { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(255,45,85,0.1); border:1px solid rgba(255,45,85,0.22); flex-shrink:0; transition:all 0.3s; }
-.fc.on .iw { background:rgba(0,255,135,0.09); border-color:rgba(0,255,135,0.32); box-shadow:0 0 10px rgba(0,255,135,0.15); }
-.fc .iw svg { width:18px; height:18px; }
-.fc .inf { flex:1; min-width:0; }
-.fc .nm { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13.5px; color:#fff; letter-spacing:0.2px; }
-.fc .ds { font-size:10px; color:var(--muted); margin-top:1px; }
-.fc .ds .dot { display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--red); margin-right:4px; vertical-align:middle; transition:background 0.3s; }
-.fc.on .ds .dot { background:var(--green); }
-.stag { display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:20px; margin-top:4px; font-family:'Rajdhani',sans-serif; font-size:9px; font-weight:700; letter-spacing:0.8px; transition:all 0.3s; }
-.stag.off { background:rgba(255,45,85,0.07); border:1px solid rgba(255,45,85,0.16); color:rgba(255,100,120,0.7); }
-.stag.on  { background:rgba(0,255,135,0.07); border:1px solid rgba(0,255,135,0.28); color:var(--green); }
-.stag .bl { width:5px; height:5px; border-radius:50%; background:currentColor; animation:blk 1.3s infinite; }
-@keyframes blk { 0%,100%{opacity:1} 50%{opacity:0.12} }
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.032;
+      background-image: linear-gradient(rgba(0, 255, 135, 1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 135, 1) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
 
-/* LOCKED FEATURE CARD */
-.fc.locked { opacity:0.5; cursor:not-allowed !important; }
-.fc.locked:active { transform:none; }
-.fc.locked .tgl { cursor:not-allowed !important; }
-.fc.locked * { cursor:not-allowed !important; }
-.lock-overlay { position:absolute; top:8px; right:8px; font-size:13px; opacity:0.7; pointer-events:none; z-index:2; }
+    .scanlines {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.022) 2px, rgba(0, 0, 0, 0.022) 4px);
+    }
 
-/* TOGGLE */
-.tgl { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; position:relative; }
-.tgl .ro  { position:absolute; inset:0;  border-radius:50%; border:2px solid rgba(255,45,85,0.42); background:rgba(255,45,85,0.07); transition:all 0.4s; }
-.tgl .rs  { position:absolute; inset:-3px; border-radius:50%; border:2px solid transparent; border-top-color:var(--green); border-right-color:rgba(0,255,135,0.3); opacity:0; transition:opacity 0.3s; }
-.tgl .rs2 { position:absolute; inset:-6px; border-radius:50%; border:1.5px solid transparent; border-bottom-color:rgba(0,255,135,0.2); opacity:0; transition:opacity 0.3s; }
-.tgl.on .rs  { opacity:1; animation:tglSpin 1.4s linear infinite; }
-.tgl.on .rs2 { opacity:1; animation:tglSpin 2.5s linear infinite reverse; }
-@keyframes tglSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-.tgl.on .ro { background:rgba(0,255,135,0.09); border-color:rgba(0,255,135,0.42); box-shadow:0 0 14px var(--green-glow),inset 0 0 7px rgba(0,255,135,0.05); }
-.tgl.pop { animation:tglPop 0.38s ease; }
-@keyframes tglPop { 0%{transform:scale(1)} 40%{transform:scale(1.18)} 100%{transform:scale(1)} }
-.tgl .pi { position:relative; z-index:1; width:16px; height:16px; }
-.tgl .pi circle { stroke:var(--red); fill:none; stroke-width:2; transition:stroke 0.3s; }
-.tgl .pi line   { stroke:var(--red); stroke-width:2; transition:stroke 0.3s; }
-.tgl.on .pi circle { stroke:var(--green); filter:drop-shadow(0 0 3px var(--green)); }
-.tgl.on .pi line   { stroke:var(--green); filter:drop-shadow(0 0 3px var(--green)); }
+    /* TOAST */
+    #toast-container {
+      position: absolute;
+      top: 70px;
+      right: 10px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 200px;
+      pointer-events: none;
+    }
 
-/* KEY BUTTON */
-.key-zone { margin:16px 0 4px; position:relative; border-radius:16px; padding:1.5px; background:linear-gradient(135deg,rgba(0,255,135,0.5),rgba(0,180,80,0.15),rgba(0,255,135,0.5)); background-size:200% 200%; animation:borderAnim 3s linear infinite; }
-@keyframes borderAnim { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-.key-btn { width:100%; border:none; border-radius:14.5px; cursor:pointer; overflow:hidden; position:relative; background:linear-gradient(135deg,#060f08,#0c1e10,#060f08); display:flex; align-items:center; transition:all 0.28s; outline:none; }
-.key-btn:active { transform:scale(0.975); filter:brightness(1.08); }
-.key-btn-ico { width:56px; height:56px; flex-shrink:0; background:linear-gradient(135deg,#00b058,#00ff87); display:flex; align-items:center; justify-content:center; font-size:22px; border-radius:13px 0 0 13px; box-shadow:4px 0 20px rgba(0,255,135,0.32); position:relative; }
-.key-btn-ico::after { content:''; position:absolute; inset:0; border-radius:inherit; background:linear-gradient(180deg,rgba(255,255,255,0.18) 0%,transparent 60%); }
-.key-btn-body { flex:1; padding:13px 14px; text-align:left; }
-.key-btn-title { font-family:'Orbitron',monospace; font-weight:900; font-size:11.5px; letter-spacing:1.8px; color:var(--green); text-shadow:0 0 14px rgba(0,255,135,0.55); }
-.key-btn-sub { font-family:'Rajdhani',sans-serif; font-size:9.5px; font-weight:600; color:rgba(0,255,135,0.38); letter-spacing:0.4px; margin-top:3px; }
-.key-btn-arr { width:38px; height:56px; display:flex; align-items:center; justify-content:center; color:rgba(0,255,135,0.35); flex-shrink:0; }
-.key-btn::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent 0%,rgba(0,255,135,0.07) 50%,transparent 100%); transform:translateX(-100%); animation:keySweep 2.4s infinite ease-in-out; }
-@keyframes keySweep { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-family: 'Rajdhani', sans-serif;
+      backdrop-filter: blur(22px);
+      border: 1px solid;
+      animation: toastIn 0.42s cubic-bezier(.34, 1.56, .64, 1) forwards;
+      pointer-events: auto;
+      position: relative;
+      overflow: hidden;
+    }
 
-/* MUA KEY BUTTON */
-.mua-key-zone { margin:8px 0 16px; }
-.btn-mua-key { width:100%; border:none; border-radius:14px; cursor:pointer; padding:14px; background:linear-gradient(135deg,#1a0020,#2d0035,#1a0020); border:1px solid rgba(180,0,255,0.35); display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Orbitron',monospace; font-weight:700; font-size:11px; letter-spacing:1.5px; color:#d966ff; transition:all 0.3s; position:relative; overflow:hidden; }
-.btn-mua-key::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(180,0,255,0.08),transparent); transform:translateX(-100%); animation:keySweep 2.8s infinite ease-in-out; }
-.btn-mua-key:active { transform:scale(0.975); }
+    .toast::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1.5px;
+      border-radius: 14px 14px 0 0;
+    }
 
-/* FOOTER */
-.footer { position:relative; z-index:10; flex-shrink:0; margin-top:18px; background:rgba(4,4,8,0.98); border-top:1px solid rgba(0,255,135,0.07); padding:15px 16px 22px; display:flex; flex-direction:column; align-items:center; gap:7px; backdrop-filter:blur(20px); }
-.footer-brand { display:flex; align-items:center; gap:8px; }
-.footer-logo { font-family:'Orbitron',monospace; font-weight:900; font-size:12px; letter-spacing:2px; background:linear-gradient(135deg,rgba(255,255,255,0.55),var(--green)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.footer-logo em { font-style:normal; -webkit-text-fill-color:rgba(255,45,85,0.65); }
-.footer-sep { width:1px; height:10px; background:rgba(255,255,255,0.1); }
-.footer-ver  { font-family:'Rajdhani',sans-serif; font-size:9px; font-weight:700; color:rgba(0,255,135,0.35); letter-spacing:1.5px; }
-.footer-tag  { font-family:'Rajdhani',sans-serif; font-size:9.5px; font-weight:600; color:rgba(255,255,255,0.15); letter-spacing:1.2px; }
-.footer-dev  { display:flex; align-items:center; gap:7px; padding:6px 14px; border-radius:22px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.055); }
-.dev-ava  { width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#c0392b,#ff6b35); display:flex; align-items:center; justify-content:center; font-size:11px; box-shadow:0 0 8px rgba(255,45,85,0.28); }
-.dev-by   { font-family:'Rajdhani',sans-serif; font-size:9.5px; font-weight:600; color:rgba(255,255,255,0.25); letter-spacing:0.8px; }
-.dev-name { font-family:'Orbitron',monospace; font-size:9.5px; font-weight:700; color:rgba(255,70,90,0.72); letter-spacing:1.2px; }
-.footer-copy { font-family:'Rajdhani',sans-serif; font-size:8.5px; color:rgba(255,255,255,0.09); letter-spacing:0.8px; }
+    .toast.success {
+      background: rgba(0, 16, 9, 0.95);
+      border-color: rgba(0, 255, 135, 0.42);
+      color: #ccf5e0;
+      box-shadow: 0 0 20px rgba(0, 255, 135, 0.15), 0 8px 30px rgba(0, 0, 0, 0.75);
+    }
 
-/* ── LICENSE MODAL ── */
-#mol { position:absolute; inset:0; z-index:200; background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); display:none; align-items:flex-end; justify-content:center; }
-#mol.open { display:flex; animation:mFade 0.22s ease; }
-@keyframes mFade { from{opacity:0} to{opacity:1} }
-.mbox { width:100%; background:linear-gradient(170deg,#0b0b18 0%,#10101f 50%,#0d0d1a 100%); border:1px solid rgba(0,255,135,0.18); border-bottom:none; border-radius:24px 24px 0 0; box-shadow:0 -6px 40px rgba(0,255,135,0.08),0 -20px 60px rgba(0,0,0,0.8); animation:mUp 0.38s cubic-bezier(.34,1.18,.64,1); max-height:90vh; overflow-y:auto; overflow-x:hidden; }
-@keyframes mUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-.m-handle-wrap { display:flex; justify-content:center; padding:10px 0 4px; }
-.m-handle { width:38px; height:4px; background:rgba(255,255,255,0.12); border-radius:2px; }
-.m-head { padding:12px 16px 14px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:space-between; position:relative; }
-.m-head::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(0,255,135,0.35),transparent); }
-.m-prof { display:flex; align-items:center; gap:12px; }
-.m-ava-wrap { position:relative; }
-.m-ava { width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg,#1a0a10,#2d0f1a,#3d1525); display:flex; align-items:center; justify-content:center; font-size:22px; border:1.5px solid rgba(255,45,85,0.4); box-shadow:0 0 16px rgba(255,45,85,0.2),inset 0 0 12px rgba(255,45,85,0.05); position:relative; overflow:hidden; }
-.m-ava::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:conic-gradient(transparent 0deg,rgba(255,45,85,0.08) 60deg,transparent 120deg); animation:auraRot 3s linear infinite; }
-@keyframes auraRot { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-.m-ava-badge { position:absolute; bottom:-3px; right:-3px; width:14px; height:14px; border-radius:50%; background:var(--green); border:2px solid #0b0b18; box-shadow:0 0 6px var(--green); animation:sdPulse 2s infinite; }
-.m-name { font-family:'Orbitron',monospace; font-weight:900; font-size:14px; background:linear-gradient(90deg,#ffffff,rgba(255,45,85,0.9)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:0.5px; }
-.m-role { font-family:'Rajdhani',sans-serif; font-size:9.5px; font-weight:600; color:rgba(255,100,120,0.6); letter-spacing:1.2px; margin-top:2px; text-transform:uppercase; }
-.m-badges { display:flex; gap:5px; margin-top:5px; }
-.m-badge { display:inline-flex; align-items:center; gap:3px; padding:2px 7px; border-radius:6px; font-family:'Rajdhani',sans-serif; font-size:8.5px; font-weight:700; letter-spacing:0.8px; }
-.m-badge.ver { background:rgba(0,255,135,0.08); border:1px solid rgba(0,255,135,0.25); color:var(--green); }
-.m-badge.sta { background:rgba(255,45,85,0.08); border:1px solid rgba(255,45,85,0.22); color:rgba(255,100,120,0.8); }
-.m-close { width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted); font-size:13px; transition:all 0.2s; flex-shrink:0; align-self:flex-start; }
-.m-close:active { background:rgba(255,45,85,0.18); color:var(--red); border-color:rgba(255,45,85,0.3); }
-.m-body { padding:16px 16px 24px; }
-.m-stats { display:flex; gap:8px; margin-bottom:16px; }
-.m-stat { flex:1; padding:9px 10px; border-radius:11px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05); text-align:center; }
-.m-stat-val { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; color:var(--green); text-shadow:0 0 10px rgba(0,255,135,0.4); }
-.m-stat-val.red { color:var(--red); text-shadow:0 0 10px rgba(255,45,85,0.4); }
-.m-stat-lbl { font-family:'Rajdhani',sans-serif; font-size:8.5px; color:var(--muted); letter-spacing:0.8px; margin-top:2px; }
-.inp-section { background:rgba(0,255,135,0.025); border:1px solid rgba(0,255,135,0.1); border-radius:14px; padding:13px; margin-bottom:12px; }
-.inp-lbl { font-family:'Rajdhani',sans-serif; font-size:10.5px; font-weight:700; letter-spacing:1.2px; color:var(--green); margin-bottom:9px; display:flex; align-items:center; gap:5px; }
-.inp-lbl svg { width:12px; height:12px; }
-.inp-wrap { display:flex; align-items:center; gap:7px; background:rgba(0,0,0,0.4); border:1.5px solid rgba(0,255,135,0.2); border-radius:10px; padding:10px 12px; transition:all 0.3s; }
-.inp-wrap:focus-within { border-color:var(--green); box-shadow:0 0 16px rgba(0,255,135,0.12); }
-.inp-wrap svg { width:13px; height:13px; color:rgba(0,255,135,0.5); flex-shrink:0; }
-.key-inp { flex:1; background:none; border:none; outline:none; font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700; color:#fff; letter-spacing:1px; }
-.key-inp::placeholder { color:rgba(255,255,255,0.15); font-weight:500; }
-.key-inp:disabled { opacity:0.5; cursor:not-allowed; }
-.btn-act { width:100%; padding:13px; border:none; border-radius:11px; font-family:'Orbitron',monospace; font-weight:700; font-size:12px; letter-spacing:1.5px; color:#000; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; transition:all 0.3s; position:relative; overflow:hidden; background:linear-gradient(135deg,#00b858,#00ff87,#00d870); box-shadow:0 4px 20px rgba(0,255,135,0.28),0 0 0 1px rgba(0,255,135,0.2); }
-.btn-act::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent); animation:btnShine 2.5s infinite; }
-@keyframes btnShine { 0%{left:-100%} 100%{left:200%} }
-.btn-act:active { transform:scale(0.97); }
-.btn-act:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-.div-txt { text-align:center; font-size:10px; color:var(--muted); margin:10px 0 8px; font-family:'Rajdhani',sans-serif; letter-spacing:1px; position:relative; }
-.div-txt::before,.div-txt::after { content:''; position:absolute; top:50%; width:28%; height:1px; background:rgba(255,255,255,0.05); }
-.div-txt::before{left:0} .div-txt::after{right:0}
-.btn-free { width:100%; padding:11px 14px; border:1px solid rgba(0,255,135,0.18); background:rgba(0,255,135,0.03); border-radius:11px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:0.7px; color:var(--green); cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition:all 0.3s; margin-bottom:8px; }
-.btn-free:active { background:rgba(0,255,135,0.08); border-color:rgba(0,255,135,0.4); }
-.btn-free span { display:flex; align-items:center; gap:6px; }
-.btn-free svg { width:14px; height:14px; }
+    .toast.error {
+      background: rgba(16, 3, 6, 0.95);
+      border-color: rgba(255, 45, 85, 0.42);
+      color: #f5ccd4;
+      box-shadow: 0 0 20px rgba(255, 45, 85, 0.15), 0 8px 30px rgba(0, 0, 0, 0.75);
+    }
 
-/* MUA KEY NGAY button inside license modal */
-.btn-mua-key-mol { width:100%; padding:11px 14px; border:1px solid rgba(180,0,255,0.32); background:rgba(180,0,255,0.06); border-radius:11px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:0.7px; color:#d966ff; cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition:all 0.3s; position:relative; overflow:hidden; }
-.btn-mua-key-mol::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(180,0,255,0.06),transparent); transform:translateX(-100%); animation:keySweep 2.8s infinite ease-in-out; }
-.btn-mua-key-mol:active { background:rgba(180,0,255,0.14); border-color:rgba(180,0,255,0.5); }
-.btn-mua-key-mol span { display:flex; align-items:center; gap:6px; }
+    .toast.info {
+      background: rgba(6, 6, 22, 0.95);
+      border-color: rgba(129, 140, 248, 0.4);
+      color: #c7d2fe;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.15), 0 8px 30px rgba(0, 0, 0, 0.75);
+    }
 
-.m-feats { margin-top:15px; }
-.f-lbl { font-family:'Rajdhani',sans-serif; font-size:9.5px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; display:flex; align-items:center; gap:5px; margin-bottom:8px; }
-.f-lbl em { font-style:normal; color:var(--red); }
-.f-row { display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:10px; background:rgba(255,255,255,0.018); margin-bottom:6px; border:1px solid rgba(255,255,255,0.035); }
-.f-ico { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(255,45,85,0.1); flex-shrink:0; border:1px solid rgba(255,45,85,0.12); }
-.f-ico svg { width:14px; height:14px; }
-.f-name { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12px; color:#fff; }
-.f-sub  { font-size:9px; color:var(--muted); margin-top:1px; }
-.f-check { margin-left:auto; font-size:12px; }
+    .toast.success::after {
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+    }
 
-/* LOADING SPINNER */
-.spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,0.3); border-top-color:#000; border-radius:50%; animation:spin 0.7s linear infinite; }
-@keyframes spin { to{transform:rotate(360deg)} }
+    .toast.error::after {
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+    }
 
-/* ── PAYMENT MODAL ── */
-#pay-mol { position:absolute; inset:0; z-index:300; background:rgba(0,0,0,0.88); backdrop-filter:blur(14px); display:none; align-items:flex-end; justify-content:center; }
-#pay-mol.open { display:flex; animation:mFade 0.22s ease; }
-.pay-box { width:100%; background:linear-gradient(170deg,#0d0a1f 0%,#130e26 50%,#0d0a1f 100%); border:1px solid rgba(180,0,255,0.22); border-bottom:none; border-radius:24px 24px 0 0; box-shadow:0 -6px 40px rgba(140,0,255,0.1),0 -20px 60px rgba(0,0,0,0.85); animation:mUp 0.38s cubic-bezier(.34,1.18,.64,1); max-height:92vh; overflow-y:auto; overflow-x:hidden; }
-.pay-head { padding:16px 16px 14px; border-bottom:1px solid rgba(180,0,255,0.1); display:flex; align-items:center; justify-content:space-between; position:relative; }
-.pay-head::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(180,0,255,0.5),transparent); }
-.pay-title { font-family:'Orbitron',monospace; font-weight:900; font-size:14px; background:linear-gradient(90deg,#d966ff,#fff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:0.8px; }
-.pay-close { width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted); font-size:13px; transition:all 0.2s; }
-.pay-close:active { background:rgba(255,45,85,0.18); color:var(--red); }
-.pay-body { padding:16px; }
-.pay-plans { display:flex; flex-direction:column; gap:9px; margin-bottom:18px; }
-.plan-card { border-radius:13px; padding:13px 15px; display:flex; align-items:center; gap:12px; border:1px solid; transition:all 0.25s; cursor:default; position:relative; overflow:hidden; }
-.plan-card::before { content:''; position:absolute; top:0; right:0; width:60px; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.03)); }
-.plan-card.basic { background:rgba(0,180,255,0.04); border-color:rgba(0,180,255,0.22); }
-.plan-card.pro   { background:rgba(180,0,255,0.06); border-color:rgba(180,0,255,0.35); }
-.plan-card.life  { background:rgba(255,180,0,0.05); border-color:rgba(255,180,0,0.28); }
-.plan-card.pro::after { content:'HOT'; position:absolute; top:8px; right:10px; font-family:'Rajdhani',sans-serif; font-size:8px; font-weight:700; color:#d966ff; letter-spacing:1px; background:rgba(180,0,255,0.15); padding:2px 6px; border-radius:6px; border:1px solid rgba(180,0,255,0.3); }
-.plan-card.life::after { content:'BEST'; position:absolute; top:8px; right:10px; font-family:'Rajdhani',sans-serif; font-size:8px; font-weight:700; color:#ffb400; letter-spacing:1px; background:rgba(255,180,0,0.12); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,180,0,0.3); }
-.plan-ico { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
-.plan-card.basic .plan-ico { background:rgba(0,180,255,0.1); }
-.plan-card.pro   .plan-ico { background:rgba(180,0,255,0.12); }
-.plan-card.life  .plan-ico { background:rgba(255,180,0,0.1); }
-.plan-name { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; color:#fff; }
-.plan-price { font-family:'Orbitron',monospace; font-size:12px; font-weight:700; margin-top:2px; }
-.plan-card.basic .plan-price { color:#00b4ff; }
-.plan-card.pro   .plan-price { color:#d966ff; }
-.plan-card.life  .plan-price { color:#ffb400; }
-.pay-qr-section { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:14px; margin-bottom:14px; display:flex; flex-direction:column; align-items:center; gap:12px; }
-.pay-qr-lbl { font-family:'Rajdhani',sans-serif; font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
-.pay-qr-img { width:180px; height:180px; border-radius:12px; object-fit:cover; border:2px solid rgba(180,0,255,0.3); box-shadow:0 0 20px rgba(180,0,255,0.15); }
-.pay-note { font-family:'Rajdhani',sans-serif; font-size:11px; font-weight:600; color:rgba(255,210,100,0.85); text-align:center; background:rgba(255,180,0,0.06); border:1px solid rgba(255,180,0,0.18); border-radius:10px; padding:9px 12px; letter-spacing:0.3px; }
-.btn-paid { width:100%; margin-top:14px; padding:14px; border:none; border-radius:12px; font-family:'Orbitron',monospace; font-weight:700; font-size:11px; letter-spacing:1.5px; color:#000; cursor:pointer; background:linear-gradient(135deg,#9000cc,#d966ff,#b300ff); box-shadow:0 4px 20px rgba(180,0,255,0.3); transition:all 0.3s; }
-.btn-paid:active { transform:scale(0.97); }
-</style>
+    .toast.info::after {
+      background: linear-gradient(90deg, transparent, #818cf8, transparent);
+    }
+
+    .toast.hide {
+      animation: toastOut 0.28s ease forwards;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(36px) scale(0.86)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1)
+      }
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+        transform: translateX(0) scale(1)
+      }
+
+      to {
+        opacity: 0;
+        transform: translateX(24px) scale(0.93)
+      }
+    }
+
+    .t-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .t-ring {
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      animation: tSpin 1.1s linear infinite;
+    }
+
+    .t-ring2 {
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      animation: tSpin 2.2s linear infinite reverse;
+    }
+
+    .toast.success .t-ring {
+      border-top-color: var(--green);
+      border-right-color: rgba(0, 255, 135, 0.28);
+    }
+
+    .toast.success .t-ring2 {
+      border-bottom-color: rgba(0, 255, 135, 0.18);
+    }
+
+    .toast.error .t-ring {
+      border-top-color: var(--red);
+      border-right-color: rgba(255, 45, 85, 0.28);
+      animation-direction: reverse;
+    }
+
+    .toast.error .t-ring2 {
+      border-bottom-color: rgba(255, 45, 85, 0.18);
+      animation-direction: normal;
+    }
+
+    .toast.info .t-ring {
+      border-top-color: #818cf8;
+      border-right-color: rgba(129, 140, 248, 0.28);
+    }
+
+    .toast.info .t-ring2 {
+      border-bottom-color: rgba(129, 140, 248, 0.18);
+    }
+
+    @keyframes tSpin {
+      from {
+        transform: rotate(0deg)
+      }
+
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .t-inner {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .toast.success .t-inner {
+      background: rgba(0, 255, 135, 0.1);
+    }
+
+    .toast.error .t-inner {
+      background: rgba(255, 45, 85, 0.1);
+    }
+
+    .toast.info .t-inner {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .t-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .t-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      line-height: 1.25;
+    }
+
+    .t-sub {
+      font-size: 9px;
+      opacity: 0.55;
+      font-weight: 500;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .t-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      border-radius: 0 0 14px 14px;
+      animation: tBar 3.2s linear forwards;
+    }
+
+    .toast.success .t-bar {
+      background: var(--green);
+    }
+
+    .toast.error .t-bar {
+      background: var(--red);
+    }
+
+    .toast.info .t-bar {
+      background: #818cf8;
+    }
+
+    @keyframes tBar {
+      from {
+        width: 100%
+      }
+
+      to {
+        width: 0%
+      }
+    }
+
+    /* HEADER */
+    .header {
+      position: relative;
+      z-index: 10;
+      padding: 13px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(6, 6, 12, 0.94);
+      backdrop-filter: blur(24px);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #fff 0%, var(--green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo em {
+      font-style: normal;
+      -webkit-text-fill-color: var(--red);
+    }
+
+    .s-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: sdPulse 2s infinite;
+    }
+
+    @keyframes sdPulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
+
+    .btn-login {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 11.5px;
+      letter-spacing: 1px;
+      padding: 6px 13px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 255, 135, 0.38);
+      background: transparent;
+      color: var(--green);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-login.ok {
+      background: rgba(0, 255, 135, 0.1);
+    }
+
+    /* MAIN */
+    main {
+      position: relative;
+      z-index: 5;
+      padding: 13px 14px 0;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .badge-upd {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(0, 255, 135, 0.07);
+      border: 1px solid rgba(0, 255, 135, 0.22);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+
+    .badge-upd .v {
+      background: var(--green);
+      color: #000;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 9px;
+    }
+
+    .sec-lbl {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 15px 0 8px;
+    }
+
+    .sec-lbl em {
+      font-style: normal;
+      color: var(--red);
+      margin-right: 5px;
+    }
+
+    /* FEATURE CARD */
+    .fc {
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.048);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.33s cubic-bezier(.4, 0, .2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fc::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--red);
+      opacity: 0.55;
+      transition: all 0.3s;
+    }
+
+    .fc.on::before {
+      background: var(--green);
+      opacity: 1;
+    }
+
+    .fc:active {
+      transform: scale(0.985);
+    }
+
+    .fc .iw {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 45, 85, 0.1);
+      border: 1px solid rgba(255, 45, 85, 0.22);
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+
+    .fc.on .iw {
+      background: rgba(0, 255, 135, 0.09);
+      border-color: rgba(0, 255, 135, 0.32);
+      box-shadow: 0 0 10px rgba(0, 255, 135, 0.15);
+    }
+
+    .fc .iw svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .fc .inf {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .fc .nm {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 13.5px;
+      color: #fff;
+      letter-spacing: 0.2px;
+    }
+
+    .fc .ds {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .fc .ds .dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--red);
+      margin-right: 4px;
+      vertical-align: middle;
+      transition: background 0.3s;
+    }
+
+    .fc.on .ds .dot {
+      background: var(--green);
+    }
+
+    .stag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-top: 4px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      transition: all 0.3s;
+    }
+
+    .stag.off {
+      background: rgba(255, 45, 85, 0.07);
+      border: 1px solid rgba(255, 45, 85, 0.16);
+      color: rgba(255, 100, 120, 0.7);
+    }
+
+    .stag.on {
+      background: rgba(0, 255, 135, 0.07);
+      border: 1px solid rgba(0, 255, 135, 0.28);
+      color: var(--green);
+    }
+
+    .stag .bl {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: blk 1.3s infinite;
+    }
+
+    @keyframes blk {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.12
+      }
+    }
+
+    /* LOCKED FEATURE CARD */
+    .fc.locked {
+      opacity: 0.5;
+      cursor: not-allowed !important;
+    }
+
+    .fc.locked:active {
+      transform: none;
+    }
+
+    .fc.locked .tgl {
+      cursor: not-allowed !important;
+    }
+
+    .fc.locked * {
+      cursor: not-allowed !important;
+    }
+
+    .lock-overlay {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 13px;
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* TOGGLE */
+    .tgl {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .tgl .ro {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 45, 85, 0.42);
+      background: rgba(255, 45, 85, 0.07);
+      transition: all 0.4s;
+    }
+
+    .tgl .rs {
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--green);
+      border-right-color: rgba(0, 255, 135, 0.3);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tgl .rs2 {
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      border-bottom-color: rgba(0, 255, 135, 0.2);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tgl.on .rs {
+      opacity: 1;
+      animation: tglSpin 1.4s linear infinite;
+    }
+
+    .tgl.on .rs2 {
+      opacity: 1;
+      animation: tglSpin 2.5s linear infinite reverse;
+    }
+
+    @keyframes tglSpin {
+      from {
+        transform: rotate(0deg)
+      }
+
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .tgl.on .ro {
+      background: rgba(0, 255, 135, 0.09);
+      border-color: rgba(0, 255, 135, 0.42);
+      box-shadow: 0 0 14px var(--green-glow), inset 0 0 7px rgba(0, 255, 135, 0.05);
+    }
+
+    .tgl.pop {
+      animation: tglPop 0.38s ease;
+    }
+
+    @keyframes tglPop {
+      0% {
+        transform: scale(1)
+      }
+
+      40% {
+        transform: scale(1.18)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .tgl .pi {
+      position: relative;
+      z-index: 1;
+      width: 16px;
+      height: 16px;
+    }
+
+    .tgl .pi circle {
+      stroke: var(--red);
+      fill: none;
+      stroke-width: 2;
+      transition: stroke 0.3s;
+    }
+
+    .tgl .pi line {
+      stroke: var(--red);
+      stroke-width: 2;
+      transition: stroke 0.3s;
+    }
+
+    .tgl.on .pi circle {
+      stroke: var(--green);
+      filter: drop-shadow(0 0 3px var(--green));
+    }
+
+    .tgl.on .pi line {
+      stroke: var(--green);
+      filter: drop-shadow(0 0 3px var(--green));
+    }
+
+    /* KEY BUTTON */
+    .key-zone {
+      margin: 16px 0 4px;
+      position: relative;
+      border-radius: 16px;
+      padding: 1.5px;
+      background: linear-gradient(135deg, rgba(0, 255, 135, 0.5), rgba(0, 180, 80, 0.15), rgba(0, 255, 135, 0.5));
+      background-size: 200% 200%;
+      animation: borderAnim 3s linear infinite;
+    }
+
+    @keyframes borderAnim {
+      0% {
+        background-position: 0% 50%
+      }
+
+      50% {
+        background-position: 100% 50%
+      }
+
+      100% {
+        background-position: 0% 50%
+      }
+    }
+
+    .key-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14.5px;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, #060f08, #0c1e10, #060f08);
+      display: flex;
+      align-items: center;
+      transition: all 0.28s;
+      outline: none;
+    }
+
+    .key-btn:active {
+      transform: scale(0.975);
+      filter: brightness(1.08);
+    }
+
+    .key-btn-ico {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #00b058, #00ff87);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      border-radius: 13px 0 0 13px;
+      box-shadow: 4px 0 20px rgba(0, 255, 135, 0.32);
+      position: relative;
+    }
+
+    .key-btn-ico::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 60%);
+    }
+
+    .key-btn-body {
+      flex: 1;
+      padding: 13px 14px;
+      text-align: left;
+    }
+
+    .key-btn-title {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 11.5px;
+      letter-spacing: 1.8px;
+      color: var(--green);
+      text-shadow: 0 0 14px rgba(0, 255, 135, 0.55);
+    }
+
+    .key-btn-sub {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 9.5px;
+      font-weight: 600;
+      color: rgba(0, 255, 135, 0.38);
+      letter-spacing: 0.4px;
+      margin-top: 3px;
+    }
+
+    .key-btn-arr {
+      width: 38px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(0, 255, 135, 0.35);
+      flex-shrink: 0;
+    }
+
+    .key-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 135, 0.07) 50%, transparent 100%);
+      transform: translateX(-100%);
+      animation: keySweep 2.4s infinite ease-in-out;
+    }
+
+    @keyframes keySweep {
+      0% {
+        transform: translateX(-100%)
+      }
+
+      100% {
+        transform: translateX(200%)
+      }
+    }
+
+    /* MUA KEY BUTTON */
+    .mua-key-zone {
+      margin: 8px 0 16px;
+    }
+
+    .btn-mua-key {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      padding: 14px;
+      background: linear-gradient(135deg, #1a0020, #2d0035, #1a0020);
+      border: 1px solid rgba(180, 0, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: #d966ff;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-mua-key::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(180, 0, 255, 0.08), transparent);
+      transform: translateX(-100%);
+      animation: keySweep 2.8s infinite ease-in-out;
+    }
+
+    .btn-mua-key:active {
+      transform: scale(0.975);
+    }
+
+    /* FOOTER */
+    .footer {
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+      margin-top: 18px;
+      background: rgba(4, 4, 8, 0.98);
+      border-top: 1px solid rgba(0, 255, 135, 0.07);
+      padding: 15px 16px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      backdrop-filter: blur(20px);
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .footer-logo em {
+      font-style: normal;
+      -webkit-text-fill-color: rgba(255, 45, 85, 0.65);
+    }
+
+    .footer-sep {
+      width: 1px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-ver {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(0, 255, 135, 0.35);
+      letter-spacing: 1.5px;
+    }
+
+    .footer-tag {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 9.5px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.15);
+      letter-spacing: 1.2px;
+    }
+
+    .footer-dev {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.055);
+    }
+
+    .dev-ava {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c0392b, #ff6b35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      box-shadow: 0 0 8px rgba(255, 45, 85, 0.28);
+    }
+
+    .dev-by {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 9.5px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.25);
+      letter-spacing: 0.8px;
+    }
+
+    .dev-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: rgba(255, 70, 90, 0.72);
+      letter-spacing: 1.2px;
+    }
+
+    .footer-copy {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 8.5px;
+      color: rgba(255, 255, 255, 0.09);
+      letter-spacing: 0.8px;
+    }
+
+    /* ── LICENSE MODAL ── */
+    #mol {
+      position: absolute;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    #mol.open {
+      display: flex;
+      animation: mFade 0.22s ease;
+    }
+
+    @keyframes mFade {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .mbox {
+      width: 100%;
+      background: linear-gradient(170deg, #0b0b18 0%, #10101f 50%, #0d0d1a 100%);
+      border: 1px solid rgba(0, 255, 135, 0.18);
+      border-bottom: none;
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -6px 40px rgba(0, 255, 135, 0.08), 0 -20px 60px rgba(0, 0, 0, 0.8);
+      animation: mUp 0.38s cubic-bezier(.34, 1.18, .64, 1);
+      max-height: 90vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    @keyframes mUp {
+      from {
+        transform: translateY(100%)
+      }
+
+      to {
+        transform: translateY(0)
+      }
+    }
+
+    .m-handle-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0 4px;
+    }
+
+    .m-handle {
+      width: 38px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 2px;
+    }
+
+    .m-head {
+      padding: 12px 16px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .m-head::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 135, 0.35), transparent);
+    }
+
+    .m-prof {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .m-ava-wrap {
+      position: relative;
+    }
+
+    .m-ava {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1a0a10, #2d0f1a, #3d1525);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      border: 1.5px solid rgba(255, 45, 85, 0.4);
+      box-shadow: 0 0 16px rgba(255, 45, 85, 0.2), inset 0 0 12px rgba(255, 45, 85, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .m-ava::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(transparent 0deg, rgba(255, 45, 85, 0.08) 60deg, transparent 120deg);
+      animation: auraRot 3s linear infinite;
+    }
+
+    @keyframes auraRot {
+      from {
+        transform: rotate(0deg)
+      }
+
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .m-ava-badge {
+      position: absolute;
+      bottom: -3px;
+      right: -3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--green);
+      border: 2px solid #0b0b18;
+      box-shadow: 0 0 6px var(--green);
+      animation: sdPulse 2s infinite;
+    }
+
+    .m-name {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 14px;
+      background: linear-gradient(90deg, #ffffff, rgba(255, 45, 85, 0.9));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .m-role {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 9.5px;
+      font-weight: 600;
+      color: rgba(255, 100, 120, 0.6);
+      letter-spacing: 1.2px;
+      margin-top: 2px;
+      text-transform: uppercase;
+    }
+
+    .m-badges {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .m-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+    }
+
+    .m-badge.ver {
+      background: rgba(0, 255, 135, 0.08);
+      border: 1px solid rgba(0, 255, 135, 0.25);
+      color: var(--green);
+    }
+
+    .m-badge.sta {
+      background: rgba(255, 45, 85, 0.08);
+      border: 1px solid rgba(255, 45, 85, 0.22);
+      color: rgba(255, 100, 120, 0.8);
+    }
+
+    .m-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 13px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+
+    .m-close:active {
+      background: rgba(255, 45, 85, 0.18);
+      color: var(--red);
+      border-color: rgba(255, 45, 85, 0.3);
+    }
+
+    .m-body {
+      padding: 16px 16px 24px;
+    }
+
+    .m-stats {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .m-stat {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+    }
+
+    .m-stat-val {
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green);
+      text-shadow: 0 0 10px rgba(0, 255, 135, 0.4);
+    }
+
+    .m-stat-val.red {
+      color: var(--red);
+      text-shadow: 0 0 10px rgba(255, 45, 85, 0.4);
+    }
+
+    .m-stat-lbl {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 8.5px;
+      color: var(--muted);
+      letter-spacing: 0.8px;
+      margin-top: 2px;
+    }
+
+    .inp-section {
+      background: rgba(0, 255, 135, 0.025);
+      border: 1px solid rgba(0, 255, 135, 0.1);
+      border-radius: 14px;
+      padding: 13px;
+      margin-bottom: 12px;
+    }
+
+    .inp-lbl {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--green);
+      margin-bottom: 9px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .inp-lbl svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .inp-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1.5px solid rgba(0, 255, 135, 0.2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      transition: all 0.3s;
+    }
+
+    .inp-wrap:focus-within {
+      border-color: var(--green);
+      box-shadow: 0 0 16px rgba(0, 255, 135, 0.12);
+    }
+
+    .inp-wrap svg {
+      width: 13px;
+      height: 13px;
+      color: rgba(0, 255, 135, 0.5);
+      flex-shrink: 0;
+    }
+
+    .key-inp {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .key-inp::placeholder {
+      color: rgba(255, 255, 255, 0.15);
+      font-weight: 500;
+    }
+
+    .key-inp:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-act {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 11px;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      color: #000;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #00b858, #00ff87, #00d870);
+      box-shadow: 0 4px 20px rgba(0, 255, 135, 0.28), 0 0 0 1px rgba(0, 255, 135, 0.2);
+    }
+
+    .btn-act::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+      animation: btnShine 2.5s infinite;
+    }
+
+    @keyframes btnShine {
+      0% {
+        left: -100%
+      }
+
+      100% {
+        left: 200%
+      }
+    }
+
+    .btn-act:active {
+      transform: scale(0.97);
+    }
+
+    .btn-act:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .div-txt {
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      margin: 10px 0 8px;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 1px;
+      position: relative;
+    }
+
+    .div-txt::before,
+    .div-txt::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 28%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .div-txt::before {
+      left: 0
+    }
+
+    .div-txt::after {
+      right: 0
+    }
+
+    .btn-free {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid rgba(0, 255, 135, 0.18);
+      background: rgba(0, 255, 135, 0.03);
+      border-radius: 11px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 12.5px;
+      letter-spacing: 0.7px;
+      color: var(--green);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s;
+      margin-bottom: 8px;
+    }
+
+    .btn-free:active {
+      background: rgba(0, 255, 135, 0.08);
+      border-color: rgba(0, 255, 135, 0.4);
+    }
+
+    .btn-free span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-free svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* MUA KEY NGAY button inside license modal */
+    .btn-mua-key-mol {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid rgba(180, 0, 255, 0.32);
+      background: rgba(180, 0, 255, 0.06);
+      border-radius: 11px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 12.5px;
+      letter-spacing: 0.7px;
+      color: #d966ff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-mua-key-mol::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(180, 0, 255, 0.06), transparent);
+      transform: translateX(-100%);
+      animation: keySweep 2.8s infinite ease-in-out;
+    }
+
+    .btn-mua-key-mol:active {
+      background: rgba(180, 0, 255, 0.14);
+      border-color: rgba(180, 0, 255, 0.5);
+    }
+
+    .btn-mua-key-mol span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .m-feats {
+      margin-top: 15px;
+    }
+
+    .f-lbl {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 9.5px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .f-lbl em {
+      font-style: normal;
+      color: var(--red);
+    }
+
+    .f-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.018);
+      margin-bottom: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.035);
+    }
+
+    .f-ico {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 45, 85, 0.1);
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 45, 85, 0.12);
+    }
+
+    .f-ico svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .f-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .f-sub {
+      font-size: 9px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .f-check {
+      margin-left: auto;
+      font-size: 12px;
+    }
+
+    /* LOADING SPINNER */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* ── PAYMENT MODAL ── */
+    #pay-mol {
+      position: absolute;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(14px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    #pay-mol.open {
+      display: flex;
+      animation: mFade 0.22s ease;
+    }
+
+    .pay-box {
+      width: 100%;
+      background: linear-gradient(170deg, #0d0a1f 0%, #130e26 50%, #0d0a1f 100%);
+      border: 1px solid rgba(180, 0, 255, 0.22);
+      border-bottom: none;
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -6px 40px rgba(140, 0, 255, 0.1), 0 -20px 60px rgba(0, 0, 0, 0.85);
+      animation: mUp 0.38s cubic-bezier(.34, 1.18, .64, 1);
+      max-height: 92vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .pay-head {
+      padding: 16px 16px 14px;
+      border-bottom: 1px solid rgba(180, 0, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .pay-head::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(180, 0, 255, 0.5), transparent);
+    }
+
+    .pay-title {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 14px;
+      background: linear-gradient(90deg, #d966ff, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.8px;
+    }
+
+    .pay-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .pay-close:active {
+      background: rgba(255, 45, 85, 0.18);
+      color: var(--red);
+    }
+
+    .pay-body {
+      padding: 16px;
+    }
+
+    .pay-plans {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 18px;
+    }
+
+    .plan-card {
+      border-radius: 13px;
+      padding: 13px 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid;
+      transition: all 0.25s;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 60px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03));
+    }
+
+    .plan-card.basic {
+      background: rgba(0, 180, 255, 0.04);
+      border-color: rgba(0, 180, 255, 0.22);
+    }
+
+    .plan-card.pro {
+      background: rgba(180, 0, 255, 0.06);
+      border-color: rgba(180, 0, 255, 0.35);
+    }
+
+    .plan-card.life {
+      background: rgba(255, 180, 0, 0.05);
+      border-color: rgba(255, 180, 0, 0.28);
+    }
+
+    .plan-card.pro::after {
+      content: 'HOT';
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      color: #d966ff;
+      letter-spacing: 1px;
+      background: rgba(180, 0, 255, 0.15);
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(180, 0, 255, 0.3);
+    }
+
+    .plan-card.life::after {
+      content: 'BEST';
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      color: #ffb400;
+      letter-spacing: 1px;
+      background: rgba(255, 180, 0, 0.12);
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 180, 0, 0.3);
+    }
+
+    .plan-ico {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .plan-card.basic .plan-ico {
+      background: rgba(0, 180, 255, 0.1);
+    }
+
+    .plan-card.pro .plan-ico {
+      background: rgba(180, 0, 255, 0.12);
+    }
+
+    .plan-card.life .plan-ico {
+      background: rgba(255, 180, 0, 0.1);
+    }
+
+    .plan-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+    }
+
+    .plan-price {
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .plan-card.basic .plan-price {
+      color: #00b4ff;
+    }
+
+    .plan-card.pro .plan-price {
+      color: #d966ff;
+    }
+
+    .plan-card.life .plan-price {
+      color: #ffb400;
+    }
+
+    .pay-qr-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pay-qr-lbl {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .pay-qr-img {
+      width: 180px;
+      height: 180px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 2px solid rgba(180, 0, 255, 0.3);
+      box-shadow: 0 0 20px rgba(180, 0, 255, 0.15);
+    }
+
+    .pay-note {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 210, 100, 0.85);
+      text-align: center;
+      background: rgba(255, 180, 0, 0.06);
+      border: 1px solid rgba(255, 180, 0, 0.18);
+      border-radius: 10px;
+      padding: 9px 12px;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-paid {
+      width: 100%;
+      margin-top: 14px;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: #000;
+      cursor: pointer;
+      background: linear-gradient(135deg, #9000cc, #d966ff, #b300ff);
+      box-shadow: 0 4px 20px rgba(180, 0, 255, 0.3);
+      transition: all 0.3s;
+    }
+
+    .btn-paid:active {
+      transform: scale(0.97);
+    }
+  </style>
 </head>
+
 <body>
-<div class="phone-wrap">
-  <div class="grid-bg"></div>
-  <div class="scanlines"></div>
-  <div id="toast-container"></div>
+  <div class="phone-wrap">
+    <div class="grid-bg"></div>
+    <div class="scanlines"></div>
+    <div id="toast-container"></div>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div style="display:flex;align-items:center;gap:8px">
-      <div class="s-dot"></div>
-      <div class="logo">SUPER<em>VNA</em></div>
-    </div>
-    <div style="display:flex;align-items:center;gap:9px">
-      <span id="status-label" style="font-family:'Rajdhani';font-size:9.5px;color:var(--red);letter-spacing:1px">• Chưa kích hoạt</span>
-      <button class="btn-login" id="btn-login" onclick="openMol()">🔑 LOGIN</button>
-    </div>
-  </header>
+    <!-- HEADER -->
+    <header class="header">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="s-dot"></div>
+        <div class="logo">SUPER<em>VNA</em></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <span id="status-label" style="font-family:'Rajdhani';font-size:9.5px;color:var(--red);letter-spacing:1px">•
+          Chưa kích hoạt</span>
+        <button class="btn-login" id="btn-login" onclick="openMol()">🔑 LOGIN</button>
+      </div>
+    </header>
 
-  <!-- MAIN -->
-  <main>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin:4px 0 13px">
-      <div class="badge-upd" onclick="showToast('info','Kiểm tra','Đang kiểm tra cập nhật...')">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-        Update <span class="v">v2.6</span>
-      </div>
-      <div style="font-family:'Rajdhani';font-size:9.5px;letter-spacing:1px;color:var(--muted)">⚡ FUNCTION APP SUPER</div>
-    </div>
-
-    <div class="sec-lbl"><em>●</em> TÍNH NĂNG CHÍNH</div>
-
-    <div class="fc locked" id="fc1" onclick="handleFeatureClick(event,this,'fc1','Game Booster','Tối ưu RAM & CPU đang chạy')">
-      <div class="lock-overlay">🔒</div>
-      <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-      <div class="inf">
-        <div class="nm">Game Booster</div>
-        <div class="ds"><span class="dot"></span>Tối ưu RAM & CPU cho game</div>
-        <span class="stag off" id="tg-fc1"><span class="bl"></span> Chưa bật</span>
-      </div>
-      <div class="tgl" id="tb-fc1"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/></svg></div>
-    </div>
-
-    <div class="fc locked" id="fc2" onclick="handleFeatureClick(event,this,'fc2','Super Aimlock','Khóa mục tiêu đang hoạt động')">
-      <div class="lock-overlay">🔒</div>
-      <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg></div>
-      <div class="inf">
-        <div class="nm">Super Aimlock</div>
-        <div class="ds"><span class="dot"></span>Khóa mục tiêu tự động siêu mượt</div>
-        <span class="stag off" id="tg-fc2"><span class="bl"></span> Chưa bật</span>
-      </div>
-      <div class="tgl" id="tb-fc2"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/></svg></div>
-    </div>
-
-    <div class="fc locked" id="fc3" onclick="handleFeatureClick(event,this,'fc3','Optimizer PugS','Giảm ping đang được áp dụng')">
-      <div class="lock-overlay">🔒</div>
-      <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><path d="M1 6l5 5-5 5M23 6l-5 5 5 5M8 2l8 20"/></svg></div>
-      <div class="inf">
-        <div class="nm">Optimizer PugS</div>
-        <div class="ds"><span class="dot"></span>Giảm ping, tăng tốc độ kết nối</div>
-        <span class="stag off" id="tg-fc3"><span class="bl"></span> Chưa bật</span>
-      </div>
-      <div class="tgl" id="tb-fc3"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/></svg></div>
-    </div>
-
-    <div class="fc locked" id="fc5" onclick="handleFeatureClick(event,this,'fc5','ULTRALOCK','Khóa tâm nâng cao đã bật')">
-      <div class="lock-overlay">🔒</div>
-      <div class="iw">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2">
-          <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/>
-        </svg>
-      </div>
-      <div class="inf">
-        <div class="nm">ULTRALOCK</div>
-        <div class="ds"><span class="dot"></span>Độ chính xác cao</div>
-        <span class="stag off" id="tg-fc5"><span class="bl"></span> Chưa bật</span>
-      </div>
-      <div class="tgl" id="tb-fc5"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></div>
-    </div>
-
-    <div class="fc locked" id="fc6" onclick="handleFeatureClick(event,this,'fc6','ULTIMATE LOCK','Khóa tâm tối đa đã bật')">
-      <div class="lock-overlay">🔒</div>
-      <div class="iw">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2">
-          <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/>
-        </svg>
-      </div>
-      <div class="inf">
-        <div class="nm">ULTIMATE LOCK</div>
-        <div class="ds"><span class="dot"></span>Hiệu suất max level</div>
-        <span class="stag off" id="tg-fc6"><span class="bl"></span> Chưa bật</span>
-      </div>
-      <div class="tgl" id="tb-fc6"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></div>
-    </div>
-
-    <div class="fc locked" id="fc7" onclick="handleFeatureClick(event,this,'fc7','SUPER LOCK AIM','Aim siêu dính đã bật')">
-      <div class="lock-overlay">🔒</div>
-      <div class="iw">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
-          <circle cx="12" cy="12" r="8"/>
-          <line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/>
-        </svg>
-      </div>
-      <div class="inf">
-        <div class="nm">SUPER LOCK AIM</div>
-        <div class="ds"><span class="dot"></span>Aim siêu chính xác</div>
-        <span class="stag off" id="tg-fc7"><span class="bl"></span> Chưa bật</span>
-      </div>
-      <div class="tgl" id="tb-fc7"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></div>
-    </div>
-
-    <div class="fc locked" id="fc4" onclick="handleFeatureClick(event,this,'fc4','Trick Head','Bắn đầu tự động đang bật')">
-      <div class="lock-overlay">🔒</div>
-      <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-      <div class="inf">
-        <div class="nm">Trick Head</div>
-        <div class="ds"><span class="dot"></span>Bắn luôn giữ vùng đầu khi kéo</div>
-        <span class="stag off" id="tg-fc4"><span class="bl"></span> Chưa bật</span>
-      </div>
-      <div class="tgl" id="tb-fc4"><div class="rs2"></div><div class="rs"></div><div class="ro"></div><svg class="pi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="7"/></svg></div>
-    </div>
-
-    <div class="key-zone">
-      <button class="key-btn" onclick="openMol()">
-        <div class="key-btn-ico">🔑</div>
-        <div class="key-btn-body">
-          <div class="key-btn-title">KÍCH HOẠT KEY</div>
-          <div class="key-btn-sub">Nhập key để mở khóa toàn bộ tính năng</div>
+    <!-- MAIN -->
+    <main>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:4px 0 13px">
+        <div class="badge-upd" onclick="showToast('info','Kiểm tra','Đang kiểm tra cập nhật...')">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          </svg>
+          Update <span class="v">v2.6</span>
         </div>
-        <div class="key-btn-arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
-      </button>
-    </div>
-
-    <div class="mua-key-zone">
-      <button class="btn-mua-key" onclick="openPayMol()">
-        💳 MUA KEY NGAY
-      </button>
-    </div>
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-brand">
-      <div class="footer-logo">SUPER<em>VNA</em></div>
-      <div class="footer-sep"></div>
-      <div class="footer-ver">V2.6.0</div>
-    </div>
-    <div class="footer-tag">GAME TOOL PRO · DESIGNED FOR WINNERS</div>
-    <div class="footer-dev">
-      <div class="dev-ava">👨‍💻</div>
-      <div class="dev-by">THIẾT KẾ BỞI</div>
-      <div class="dev-name">NHÊN DEVELOPER</div>
-    </div>
-    <div class="footer-copy">© 2025 SUPERVNA · ALL RIGHTS RESERVED</div>
-  </footer>
-
-  <!-- LICENSE MODAL -->
-  <div id="mol" onclick="molClose(event)">
-    <div class="mbox">
-      <div class="m-handle-wrap"><div class="m-handle"></div></div>
-      <div class="m-head">
-        <div class="m-prof">
-          <div class="m-ava-wrap">
-            <div class="m-ava">💀</div>
-            <div class="m-ava-badge"></div>
-          </div>
-          <div>
-            <div class="m-name">NHEN DEVELOPER</div>
-            <div class="m-role">Game Tool Creator</div>
-            <div class="m-badges">
-              <span class="m-badge ver">⚡ v2.6.0</span>
-              <span class="m-badge sta">🔒 STABLE</span>
-            </div>
-          </div>
+        <div style="font-family:'Rajdhani';font-size:9.5px;letter-spacing:1px;color:var(--muted)">⚡ FUNCTION APP SUPER
         </div>
-        <div class="m-close" onclick="closeMol()">✕</div>
       </div>
-      <div class="m-body">
-        <div class="m-stats">
-          <div class="m-stat"><div class="m-stat-val">7</div><div class="m-stat-lbl">FEATURES</div></div>
-          <div class="m-stat"><div class="m-stat-val red">PRO</div><div class="m-stat-lbl">PLAN</div></div>
-          <div class="m-stat"><div class="m-stat-val">99%</div><div class="m-stat-lbl">STABLE</div></div>
+
+      <div class="sec-lbl"><em>●</em> TÍNH NĂNG CHÍNH</div>
+
+      <div class="fc locked" id="fc1"
+        onclick="handleFeatureClick(event,this,'fc1','Game Booster','Tối ưu RAM & CPU đang chạy')">
+        <div class="lock-overlay">🔒</div>
+        <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg></div>
+        <div class="inf">
+          <div class="nm">Game Booster</div>
+          <div class="ds"><span class="dot"></span>Tối ưu RAM & CPU cho game</div>
+          <span class="stag off" id="tg-fc1"><span class="bl"></span> Chưa bật</span>
         </div>
-        <div class="inp-section">
-          <div class="inp-lbl">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3"/></svg>
-            NHẬP KEY KÍCH HOẠT
-          </div>
-          <div class="inp-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3"/></svg>
-            <input class="key-inp" id="kinp" type="text" placeholder="HH-XXXX-XXXX-XXXX....">
-          </div>
+        <div class="tgl" id="tb-fc1">
+          <div class="rs2"></div>
+          <div class="rs"></div>
+          <div class="ro"></div><svg class="pi" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <line x1="12" y1="3" x2="12" y2="7" />
+          </svg>
         </div>
-        <button class="btn-act" id="btn-act" onclick="doActivate()">⚡ KÍCH HOẠT NGAY</button>
-        <div class="div-txt">Hoặc chọn một tùy chọn bên dưới</div>
-        <button class="btn-free" onclick="doFree()">
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M12 8s2-2 4-2-4 6-4 6M12 8S10 6 8 6s4 6 4 6"/></svg>
-            Xem key miễn phí tại trang Info
-          </span>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <div class="fc locked" id="fc2"
+        onclick="handleFeatureClick(event,this,'fc2','Super Aimlock','Khóa mục tiêu đang hoạt động')">
+        <div class="lock-overlay">🔒</div>
+        <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="3" />
+            <line x1="12" y1="2" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="22" y2="12" />
+          </svg></div>
+        <div class="inf">
+          <div class="nm">Super Aimlock</div>
+          <div class="ds"><span class="dot"></span>Khóa mục tiêu tự động siêu mượt</div>
+          <span class="stag off" id="tg-fc2"><span class="bl"></span> Chưa bật</span>
+        </div>
+        <div class="tgl" id="tb-fc2">
+          <div class="rs2"></div>
+          <div class="rs"></div>
+          <div class="ro"></div><svg class="pi" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <line x1="12" y1="3" x2="12" y2="7" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="fc locked" id="fc3"
+        onclick="handleFeatureClick(event,this,'fc3','Optimizer PugS','Giảm ping đang được áp dụng')">
+        <div class="lock-overlay">🔒</div>
+        <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2">
+            <path d="M1 6l5 5-5 5M23 6l-5 5 5 5M8 2l8 20" />
+          </svg></div>
+        <div class="inf">
+          <div class="nm">Optimizer PugS</div>
+          <div class="ds"><span class="dot"></span>Giảm ping, tăng tốc độ kết nối</div>
+          <span class="stag off" id="tg-fc3"><span class="bl"></span> Chưa bật</span>
+        </div>
+        <div class="tgl" id="tb-fc3">
+          <div class="rs2"></div>
+          <div class="rs"></div>
+          <div class="ro"></div><svg class="pi" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <line x1="12" y1="3" x2="12" y2="7" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="fc locked" id="fc5"
+        onclick="handleFeatureClick(event,this,'fc5','ULTRALOCK','Khóa tâm nâng cao đã bật')">
+        <div class="lock-overlay">🔒</div>
+        <div class="iw">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2">
+            <circle cx="12" cy="12" r="7" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </div>
+        <div class="inf">
+          <div class="nm">ULTRALOCK</div>
+          <div class="ds"><span class="dot"></span>Độ chính xác cao</div>
+          <span class="stag off" id="tg-fc5"><span class="bl"></span> Chưa bật</span>
+        </div>
+        <div class="tgl" id="tb-fc5">
+          <div class="rs2"></div>
+          <div class="rs"></div>
+          <div class="ro"></div><svg class="pi" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="fc locked" id="fc6"
+        onclick="handleFeatureClick(event,this,'fc6','ULTIMATE LOCK','Khóa tâm tối đa đã bật')">
+        <div class="lock-overlay">🔒</div>
+        <div class="iw">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2">
+            <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />
+          </svg>
+        </div>
+        <div class="inf">
+          <div class="nm">ULTIMATE LOCK</div>
+          <div class="ds"><span class="dot"></span>Hiệu suất max level</div>
+          <span class="stag off" id="tg-fc6"><span class="bl"></span> Chưa bật</span>
+        </div>
+        <div class="tgl" id="tb-fc6">
+          <div class="rs2"></div>
+          <div class="rs"></div>
+          <div class="ro"></div><svg class="pi" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="fc locked" id="fc7"
+        onclick="handleFeatureClick(event,this,'fc7','SUPER LOCK AIM','Aim siêu dính đã bật')">
+        <div class="lock-overlay">🔒</div>
+        <div class="iw">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+            <circle cx="12" cy="12" r="8" />
+            <line x1="12" y1="4" x2="12" y2="20" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+          </svg>
+        </div>
+        <div class="inf">
+          <div class="nm">SUPER LOCK AIM</div>
+          <div class="ds"><span class="dot"></span>Aim siêu chính xác</div>
+          <span class="stag off" id="tg-fc7"><span class="bl"></span> Chưa bật</span>
+        </div>
+        <div class="tgl" id="tb-fc7">
+          <div class="rs2"></div>
+          <div class="rs"></div>
+          <div class="ro"></div><svg class="pi" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="fc locked" id="fc4"
+        onclick="handleFeatureClick(event,this,'fc4','Trick Head','Bắn đầu tự động đang bật')">
+        <div class="lock-overlay">🔒</div>
+        <div class="iw"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg></div>
+        <div class="inf">
+          <div class="nm">Trick Head</div>
+          <div class="ds"><span class="dot"></span>Bắn luôn giữ vùng đầu khi kéo</div>
+          <span class="stag off" id="tg-fc4"><span class="bl"></span> Chưa bật</span>
+        </div>
+        <div class="tgl" id="tb-fc4">
+          <div class="rs2"></div>
+          <div class="rs"></div>
+          <div class="ro"></div><svg class="pi" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <line x1="12" y1="3" x2="12" y2="7" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="key-zone">
+        <button class="key-btn" onclick="openMol()">
+          <div class="key-btn-ico">🔑</div>
+          <div class="key-btn-body">
+            <div class="key-btn-title">KÍCH HOẠT KEY</div>
+            <div class="key-btn-sub">Nhập key để mở khóa toàn bộ tính năng</div>
+          </div>
+          <div class="key-btn-arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6" />
+            </svg></div>
         </button>
-        <button class="btn-mua-key-mol" onclick="closeMol(); openPayMol();">
-          <span>👉 Mua key ngay</span>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <div class="mua-key-zone">
+        <button class="btn-mua-key" onclick="openPayMol()">
+          💳 MUA KEY NGAY
         </button>
-        <div class="m-feats">
-          <div class="f-lbl"><em>◉</em> SUPERVNA CORE FEATURES</div>
-          <div class="f-row"><div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div><div class="f-name">Game Booster Pro</div><div class="f-sub">Tối ưu RAM & CPU — Giảm lag, tăng FPS</div></div><div class="f-check">⚡</div></div>
-          <div class="f-row"><div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div><div><div class="f-name">Super Aimlock Elite</div><div class="f-sub">Ghim mục tiêu siêu ổn định & mượt</div></div><div class="f-check">🎯</div></div>
-          <div class="f-row"><div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#00ff87" stroke-width="2"><path d="M1 6l5 5-5 5M23 6l-5 5 5 5"/></svg></div><div><div class="f-name">Network Optimizer</div><div class="f-sub">Giảm ping — ổn định, không disconnect</div></div><div class="f-check">📡</div></div>
-          <div class="f-row"><div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="f-name">FPS Unlocker + Trick Head</div><div class="f-sub">Tăng FPS — Mượt mà không giật lag</div></div><div class="f-check">🔓</div></div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-brand">
+        <div class="footer-logo">SUPER<em>VNA</em></div>
+        <div class="footer-sep"></div>
+        <div class="footer-ver">V2.6.0</div>
+      </div>
+      <div class="footer-tag">GAME TOOL PRO · DESIGNED FOR WINNERS</div>
+      <div class="footer-dev">
+        <div class="dev-ava">👨‍💻</div>
+        <div class="dev-by">THIẾT KẾ BỞI</div>
+        <div class="dev-name">NHÊN DEVELOPER</div>
+      </div>
+      <div class="footer-copy">© 2025 SUPERVNA · ALL RIGHTS RESERVED</div>
+    </footer>
+
+    <!-- LICENSE MODAL -->
+    <div id="mol" onclick="molClose(event)">
+      <div class="mbox">
+        <div class="m-handle-wrap">
+          <div class="m-handle"></div>
+        </div>
+        <div class="m-head">
+          <div class="m-prof">
+            <div class="m-ava-wrap">
+              <div class="m-ava">💀</div>
+              <div class="m-ava-badge"></div>
+            </div>
+            <div>
+              <div class="m-name">NHEN DEVELOPER</div>
+              <div class="m-role">Game Tool Creator</div>
+              <div class="m-badges">
+                <span class="m-badge ver">⚡ v2.6.0</span>
+                <span class="m-badge sta">🔒 STABLE</span>
+              </div>
+            </div>
+          </div>
+          <div class="m-close" onclick="closeMol()">✕</div>
+        </div>
+        <div class="m-body">
+          <div class="m-stats">
+            <div class="m-stat">
+              <div class="m-stat-val">7</div>
+              <div class="m-stat-lbl">FEATURES</div>
+            </div>
+            <div class="m-stat">
+              <div class="m-stat-val red">PRO</div>
+              <div class="m-stat-lbl">PLAN</div>
+            </div>
+            <div class="m-stat">
+              <div class="m-stat-val">99%</div>
+              <div class="m-stat-lbl">STABLE</div>
+            </div>
+          </div>
+          <div class="inp-section">
+            <div class="inp-lbl">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3" />
+              </svg>
+              NHẬP KEY KÍCH HOẠT
+            </div>
+            <div class="inp-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3" />
+              </svg>
+              <input class="key-inp" id="kinp" type="text" placeholder="HH-XXXX-XXXX-XXXX....">
+            </div>
+          </div>
+          <button class="btn-act" id="btn-act" onclick="doActivate()">⚡ KÍCH HOẠT NGAY</button>
+          <div class="div-txt">Hoặc chọn một tùy chọn bên dưới</div>
+          <button class="btn-free" onclick="doFree()">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="8" width="18" height="13" rx="2" />
+                <path d="M12 8v13M12 8s2-2 4-2-4 6-4 6M12 8S10 6 8 6s4 6 4 6" />
+              </svg>
+              Xem key miễn phí tại trang Info
+            </span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+          <button class="btn-mua-key-mol" onclick="closeMol(); openPayMol();">
+            <span>👉 Mua key ngay</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+          <div class="m-feats">
+            <div class="f-lbl"><em>◉</em> SUPERVNA CORE FEATURES</div>
+            <div class="f-row">
+              <div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg></div>
+              <div>
+                <div class="f-name">Game Booster Pro</div>
+                <div class="f-sub">Tối ưu RAM & CPU — Giảm lag, tăng FPS</div>
+              </div>
+              <div class="f-check">⚡</div>
+            </div>
+            <div class="f-row">
+              <div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg></div>
+              <div>
+                <div class="f-name">Super Aimlock Elite</div>
+                <div class="f-sub">Ghim mục tiêu siêu ổn định & mượt</div>
+              </div>
+              <div class="f-check">🎯</div>
+            </div>
+            <div class="f-row">
+              <div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#00ff87" stroke-width="2">
+                  <path d="M1 6l5 5-5 5M23 6l-5 5 5 5" />
+                </svg></div>
+              <div>
+                <div class="f-name">Network Optimizer</div>
+                <div class="f-sub">Giảm ping — ổn định, không disconnect</div>
+              </div>
+              <div class="f-check">📡</div>
+            </div>
+            <div class="f-row">
+              <div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                </svg></div>
+              <div>
+                <div class="f-name">FPS Unlocker + Trick Head</div>
+                <div class="f-sub">Tăng FPS — Mượt mà không giật lag</div>
+              </div>
+              <div class="f-check">🔓</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- PAYMENT MODAL -->
-  <div id="pay-mol" onclick="payMolClose(event)">
-    <div class="pay-box">
-      <div class="m-handle-wrap"><div class="m-handle"></div></div>
-      <div class="pay-head">
-        <div class="pay-title">💎 Nâng cấp tài khoản</div>
-        <div class="pay-close" onclick="closePayMol()">✕</div>
-      </div>
-      <div class="pay-body">
-        <div class="pay-plans">
-          <div class="plan-card basic">
-            <div class="plan-ico">🌱</div>
-            <div>
-              <div class="plan-name">Gói Cơ Bản</div>
-              <div class="plan-price">100.000đ</div>
+    <!-- PAYMENT MODAL -->
+    <div id="pay-mol" onclick="payMolClose(event)">
+      <div class="pay-box">
+        <div class="m-handle-wrap">
+          <div class="m-handle"></div>
+        </div>
+        <div class="pay-head">
+          <div class="pay-title">💎 Nâng cấp tài khoản</div>
+          <div class="pay-close" onclick="closePayMol()">✕</div>
+        </div>
+        <div class="pay-body">
+          <div class="pay-plans">
+            <div class="plan-card basic">
+              <div class="plan-ico">🌱</div>
+              <div>
+                <div class="plan-name">Gói Cơ Bản</div>
+                <div class="plan-price">100.000đ</div>
+              </div>
+            </div>
+            <div class="plan-card pro">
+              <div class="plan-ico">⚡</div>
+              <div>
+                <div class="plan-name">Gói Pro 1OB Ngày</div>
+                <div class="plan-price">300.000đ</div>
+              </div>
+            </div>
+            <div class="plan-card life">
+              <div class="plan-ico">👑</div>
+              <div>
+                <div class="plan-name">Gói Vĩnh Viễn</div>
+                <div class="plan-price">700.000đ</div>
+              </div>
             </div>
           </div>
-          <div class="plan-card pro">
-            <div class="plan-ico">⚡</div>
-            <div>
-              <div class="plan-name">Gói Pro 1OB Ngày</div>
-              <div class="plan-price">300.000đ</div>
-            </div>
+          <div class="pay-qr-section">
+            <div class="pay-qr-lbl">📷 Quét mã QR để thanh toán</div>
+            <img class="pay-qr-img" src="https://i.ibb.co/0R8RVXdz/anh-chuy-n-kho-n.jpg" alt="QR chuyển khoản"
+              onerror="this.style.background='rgba(180,0,255,0.1)';this.alt='QR Code';">
           </div>
-          <div class="plan-card life">
-            <div class="plan-ico">👑</div>
-            <div>
-              <div class="plan-name">Gói Vĩnh Viễn</div>
-              <div class="plan-price">700.000đ</div>
-            </div>
+          <div class="pay-note">
+            📝 Nội dung chuyển khoản: <strong>TÊN GÓI + SỐ ĐIỆN THOẠI</strong>
           </div>
+          <button class="btn-paid"
+            onclick="closePayMol(); showToast('success','Cảm ơn bạn!','Liên hệ admin để nhận key kích hoạt 🎉')">✅ Tôi
+            đã thanh toán</button>
         </div>
-        <div class="pay-qr-section">
-          <div class="pay-qr-lbl">📷 Quét mã QR để thanh toán</div>
-          <img class="pay-qr-img" src="https://i.ibb.co/0R8RVXdz/anh-chuy-n-kho-n.jpg" alt="QR chuyển khoản" onerror="this.style.background='rgba(180,0,255,0.1)';this.alt='QR Code';">
-        </div>
-        <div class="pay-note">
-          📝 Nội dung chuyển khoản: <strong>TÊN GÓI + SỐ ĐIỆN THOẠI</strong>
-        </div>
-        <button class="btn-paid" onclick="closePayMol(); showToast('success','Cảm ơn bạn!','Liên hệ admin để nhận key kích hoạt 🎉')">✅ Tôi đã thanh toán</button>
       </div>
     </div>
-  </div>
 
-</div><!-- end phone-wrap -->
+  </div><!-- end phone-wrap -->
 
-<script>
-(function () {
-  'use strict';
+  <script>
+    (function () {
+      'use strict';
 
-  // ── CONFIG ──
-  var API_BASE     = 'https://api.dak.edu.vn';
-  var API_ENDPOINT = '/yna_api/license.php?action=check';
+      // ── CONFIG ──
+      var API_BASE = 'https://api.dak.edu.vn';
+      var API_ENDPOINT = '/yna_api/license.php?action=check';
 
-  // ── STATE ──
-  var isActivated = false;
-  var DEVICE_ID   = null;
+      // ── STATE ──
+      var isActivated = false;
+      var DEVICE_ID = null;
 
-  // ── DEVICE ID (SHA-256 of userAgent + screen size) ──
- function generateDeviceId() {
-  var raw = navigator.userAgent + '|' + screen.width + 'x' + screen.height;
+      function generateDeviceId() {
+        var raw = navigator.userAgent + '|' +
+          screen.width + 'x' + screen.height + '|' +
+          (new Date().getTime());
 
-  var hash = 0;
-  for (var i = 0; i < raw.length; i++) {
-    var chr = raw.charCodeAt(i);
-    hash = ((hash << 5) - hash) + chr;
-    hash |= 0;
-  }
-
-  return 'DEV-' + Math.abs(hash).toString(16).toUpperCase();
-}
-
-function getDeviceId() {
-  var cached = localStorage.getItem('svna_device_id');
-  if (cached) return cached;
-
-  var id = generateDeviceId();
-  localStorage.setItem('svna_device_id', id);
-  return id;
-}
-
-  // ── SOUND ENGINE ──
-  var audioCtx = null;
-  function getAC() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    return audioCtx;
-  }
-  function beep(freq, t0, dur, vol) {
-    var ctx = getAC();
-    var osc = ctx.createOscillator();
-    var gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, t0);
-    gain.gain.setValueAtTime(0, t0);
-    gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    osc.start(t0);
-    osc.stop(t0 + dur + 0.025);
-  }
-  function sndOn() {
-    var t = getAC().currentTime;
-    beep(880,  t,       0.07, 0.15);
-    beep(1320, t + 0.1, 0.09, 0.15);
-  }
-  function sndOff() {
-    var t = getAC().currentTime;
-    beep(660, t,       0.07, 0.12);
-    beep(440, t + 0.1, 0.10, 0.10);
-  }
-  function sndClick() {
-    var t = getAC().currentTime;
-    beep(1100, t, 0.055, 0.09);
-  }
-
-  // ── TOAST ──
-  var ICONS = { success: '✅', error: '❌', info: 'ℹ️' };
-  function showToast(type, title, sub, dur) {
-    dur = dur || 3200;
-    var c = document.getElementById('toast-container');
-    var el = document.createElement('div');
-    el.className = 'toast ' + type;
-    el.innerHTML =
-      '<div class="t-icon"><div class="t-ring2"></div><div class="t-ring"></div>' +
-      '<div class="t-inner">' + ICONS[type] + '</div></div>' +
-      '<div class="t-text"><div class="t-title">' + title + '</div>' +
-      (sub ? '<div class="t-sub">' + sub + '</div>' : '') + '</div>' +
-      '<div class="t-bar" style="animation-duration:' + dur + 'ms"></div>';
-    c.appendChild(el);
-    setTimeout(function () {
-      el.classList.add('hide');
-      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
-    }, dur);
-  }
-
-  // ── LICENSE API ──
-  async function checkKey(key) {
-    var resp = await fetch(API_BASE + API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key: key, device_id: DEVICE_ID })
-    });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return await resp.json();
-  }
-
-  // ── UI LOCK / UNLOCK ──
-  function lockUI() {
-    isActivated = false;
-    document.querySelectorAll('.fc').forEach(function(card) {
-      card.classList.add('locked');
-      if (!card.querySelector('.lock-overlay')) {
-        var ov = document.createElement('div');
-        ov.className = 'lock-overlay';
-        ov.textContent = '🔒';
-        card.appendChild(ov);
+        var hash = 0;
+        for (var i = 0; i < raw.length; i++) {
+          var chr = raw.charCodeAt(i);
+          hash = ((hash << 5) - hash) + chr;
+          hash = hash & hash; // Convert to 32bit integer
+        }
+        return 'DEV-' + Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
       }
-    });
-    var sl = document.getElementById('status-label');
-    if (sl) { sl.textContent = '• Chưa kích hoạt'; sl.style.color = 'var(--red)'; }
-    var bl = document.getElementById('btn-login');
-    if (bl) { bl.textContent = '🔑 LOGIN'; bl.classList.remove('ok'); }
-  }
+      function getDeviceId() {
+        var cached = localStorage.getItem('svna_device_id');
+        if (cached) return cached;
 
-  function unlockUI() {
-    isActivated = true;
-    document.querySelectorAll('.fc').forEach(function(card) {
-      card.classList.remove('locked');
-      var ov = card.querySelector('.lock-overlay');
-      if (ov) ov.remove();
-    });
-    var sl = document.getElementById('status-label');
-    if (sl) { sl.textContent = '• Đã kích hoạt'; sl.style.color = 'var(--green)'; }
-    var bl = document.getElementById('btn-login');
-    if (bl) { bl.textContent = '✅ ĐÃ KÍCH HOẠT'; bl.classList.add('ok'); }
-  }
+        var id = generateDeviceId();
+        localStorage.setItem('svna_device_id', id);
+        return id;
+      }
 
-  // ── MODAL CONTROLS ──
-  function showLicensePopup() { document.getElementById('mol').classList.add('open'); }
-  function openMol()          { showLicensePopup(); }
-  function closeMol()         { document.getElementById('mol').classList.remove('open'); }
-  function molClose(e)        { if (e.target === document.getElementById('mol')) closeMol(); }
+      // ── SOUND ENGINE ──
+      var audioCtx = null;
+      function getAC() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      }
+      function beep(freq, t0, dur, vol) {
+        var ctx = getAC();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t0);
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        osc.start(t0);
+        osc.stop(t0 + dur + 0.025);
+      }
+      function sndOn() {
+        var t = getAC().currentTime;
+        beep(880, t, 0.07, 0.15);
+        beep(1320, t + 0.1, 0.09, 0.15);
+      }
+      function sndOff() {
+        var t = getAC().currentTime;
+        beep(660, t, 0.07, 0.12);
+        beep(440, t + 0.1, 0.10, 0.10);
+      }
+      function sndClick() {
+        var t = getAC().currentTime;
+        beep(1100, t, 0.055, 0.09);
+      }
 
-  function showPaymentPopup() { document.getElementById('pay-mol').classList.add('open'); sndClick(); }
-  function openPayMol()       { showPaymentPopup(); }
-  function closePayMol()      { document.getElementById('pay-mol').classList.remove('open'); }
-  function payMolClose(e)     { if (e.target === document.getElementById('pay-mol')) closePayMol(); }
+      // ── TOAST ──
+      var ICONS = { success: '✅', error: '❌', info: 'ℹ️' };
+      function showToast(type, title, sub, dur) {
+        dur = dur || 3200;
+        var c = document.getElementById('toast-container');
+        var el = document.createElement('div');
+        el.className = 'toast ' + type;
+        el.innerHTML =
+          '<div class="t-icon"><div class="t-ring2"></div><div class="t-ring"></div>' +
+          '<div class="t-inner">' + ICONS[type] + '</div></div>' +
+          '<div class="t-text"><div class="t-title">' + title + '</div>' +
+          (sub ? '<div class="t-sub">' + sub + '</div>' : '') + '</div>' +
+          '<div class="t-bar" style="animation-duration:' + dur + 'ms"></div>';
+        c.appendChild(el);
+        setTimeout(function () {
+          el.classList.add('hide');
+          setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+        }, dur);
+      }
 
-  // ── FEATURE TOGGLE ──
-  function toggleFc(card, id, name, desc) {
-    var tb = document.getElementById('tb-' + id);
-    var tg = document.getElementById('tg-' + id);
-    var isOn = tb.classList.contains('on');
-    tb.classList.remove('pop');
-    void tb.offsetWidth;
-    tb.classList.add('pop');
-    if (!isOn) {
-      sndOn();
-      card.classList.add('on'); tb.classList.add('on');
-      var svg = card.querySelector('.iw svg');
-      if (svg) svg.setAttribute('stroke', '#00ff87');
-      tg.className = 'stag on';
-      tg.innerHTML = '<span class="bl"></span> Đang chạy';
-      showToast('success', name + ' BẬT', desc);
-    } else {
-      sndOff();
-      card.classList.remove('on'); tb.classList.remove('on');
-      var svg2 = card.querySelector('.iw svg');
-      if (svg2) svg2.setAttribute('stroke', '#ff2d55');
-      tg.className = 'stag off';
-      tg.innerHTML = '<span class="bl"></span> Chưa bật';
-      showToast('error', name + ' TẮT', 'Tính năng đã vô hiệu hóa');
-    }
-  }
+      async function checkKey(key) {
+        const url = API_BASE + API_ENDPOINT + '&t=' + Date.now();   // chống cache
 
-  // ── HANDLE FEATURE CLICK (gate) ──
-  function handleFeatureClick(event, card, id, name, desc) {
-    if (card.classList.contains('locked')) {
-      event.preventDefault();
-      event.stopPropagation();
-      sndOff();
-      showToast('error', 'Chưa kích hoạt', 'Vui lòng nhập key để sử dụng');
-      showLicensePopup();
-      return;
-    }
-    toggleFc(card, id, name, desc);
-  }
+        try {
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+              key: key,
+              device_id: DEVICE_ID
+            }),
+            cache: 'no-store',
+            redirect: 'follow'
+          });
 
-  // ── ACTIVATE ──
-  async function doActivate() {
-    var inp = document.getElementById('kinp');
-    var btn = document.getElementById('btn-act');
-    var v   = inp.value.trim();
+          if (!resp.ok) {
+            throw new Error('HTTP ' + resp.status);
+          }
 
-    if (!v)          { showToast('error', 'Thiếu key', 'Vui lòng nhập key kích hoạt!'); return; }
-    if (v.length < 6){ showToast('error', 'Key không hợp lệ', 'Thử lại với key đúng định dạng'); return; }
+          const result = await resp.json();
+          console.log('API Response:', result);   // Quan trọng để debug
+          return result;
 
-    inp.disabled = true;
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner"></div> ĐANG XÁC THỰC...';
-    showToast('info', 'Đang xác thực', 'Vui lòng chờ trong giây lát...', 4000);
+        } catch (err) {
+          console.error('CheckKey Error:', err);
+          throw err;
+        }
+      }
 
-    try {
-      var result = await checkKey(v);
-      if (result && result.status === 'success') {
-        localStorage.setItem('license_key',  v);
-        localStorage.setItem('device_id',    DEVICE_ID);
-        localStorage.setItem('isActivated',  'true');
-        unlockUI();
-        sndOn();
-        showToast('success', 'Kích hoạt thành công!', 'Chào mừng đến SuperVNA 🎉');
+      // ── UI LOCK / UNLOCK ──
+      function lockUI() {
+        isActivated = false;
+        document.querySelectorAll('.fc').forEach(function (card) {
+          card.classList.add('locked');
+          if (!card.querySelector('.lock-overlay')) {
+            var ov = document.createElement('div');
+            ov.className = 'lock-overlay';
+            ov.textContent = '🔒';
+            card.appendChild(ov);
+          }
+        });
+        var sl = document.getElementById('status-label');
+        if (sl) { sl.textContent = '• Chưa kích hoạt'; sl.style.color = 'var(--red)'; }
+        var bl = document.getElementById('btn-login');
+        if (bl) { bl.textContent = '🔑 LOGIN'; bl.classList.remove('ok'); }
+      }
+
+      function unlockUI() {
+        isActivated = true;
+        document.querySelectorAll('.fc').forEach(function (card) {
+          card.classList.remove('locked');
+          var ov = card.querySelector('.lock-overlay');
+          if (ov) ov.remove();
+        });
+        var sl = document.getElementById('status-label');
+        if (sl) { sl.textContent = '• Đã kích hoạt'; sl.style.color = 'var(--green)'; }
+        var bl = document.getElementById('btn-login');
+        if (bl) { bl.textContent = '✅ ĐÃ KÍCH HOẠT'; bl.classList.add('ok'); }
+      }
+
+      // ── MODAL CONTROLS ──
+      function showLicensePopup() { document.getElementById('mol').classList.add('open'); }
+      function openMol() { showLicensePopup(); }
+      function closeMol() { document.getElementById('mol').classList.remove('open'); }
+      function molClose(e) { if (e.target === document.getElementById('mol')) closeMol(); }
+
+      function showPaymentPopup() { document.getElementById('pay-mol').classList.add('open'); sndClick(); }
+      function openPayMol() { showPaymentPopup(); }
+      function closePayMol() { document.getElementById('pay-mol').classList.remove('open'); }
+      function payMolClose(e) { if (e.target === document.getElementById('pay-mol')) closePayMol(); }
+
+      // ── FEATURE TOGGLE ──
+      function toggleFc(card, id, name, desc) {
+        var tb = document.getElementById('tb-' + id);
+        var tg = document.getElementById('tg-' + id);
+        var isOn = tb.classList.contains('on');
+        tb.classList.remove('pop');
+        void tb.offsetWidth;
+        tb.classList.add('pop');
+        if (!isOn) {
+          sndOn();
+          card.classList.add('on'); tb.classList.add('on');
+          var svg = card.querySelector('.iw svg');
+          if (svg) svg.setAttribute('stroke', '#00ff87');
+          tg.className = 'stag on';
+          tg.innerHTML = '<span class="bl"></span> Đang chạy';
+          showToast('success', name + ' BẬT', desc);
+        } else {
+          sndOff();
+          card.classList.remove('on'); tb.classList.remove('on');
+          var svg2 = card.querySelector('.iw svg');
+          if (svg2) svg2.setAttribute('stroke', '#ff2d55');
+          tg.className = 'stag off';
+          tg.innerHTML = '<span class="bl"></span> Chưa bật';
+          showToast('error', name + ' TẮT', 'Tính năng đã vô hiệu hóa');
+        }
+      }
+
+      // ── HANDLE FEATURE CLICK (gate) ──
+      function handleFeatureClick(event, card, id, name, desc) {
+        if (card.classList.contains('locked')) {
+          event.preventDefault();
+          event.stopPropagation();
+          sndOff();
+          showToast('error', 'Chưa kích hoạt', 'Vui lòng nhập key để sử dụng');
+          showLicensePopup();
+          return;
+        }
+        toggleFc(card, id, name, desc);
+      }
+
+      // ── ACTIVATE ──
+      async function doActivate() {
+        var inp = document.getElementById('kinp');
+        var btn = document.getElementById('btn-act');
+        var v = inp.value.trim();
+
+        if (!v) { showToast('error', 'Thiếu key', 'Vui lòng nhập key kích hoạt!'); return; }
+        if (v.length < 6) { showToast('error', 'Key không hợp lệ', 'Thử lại với key đúng định dạng'); return; }
+
+        inp.disabled = true;
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> ĐANG XÁC THỰC...';
+        showToast('info', 'Đang xác thực', 'Vui lòng chờ trong giây lát...', 4000);
+
+        try {
+          var result = await checkKey(v);
+          if (result && result.status === 'success') {
+            localStorage.setItem('license_key', v);
+            localStorage.setItem('device_id', DEVICE_ID);
+            localStorage.setItem('isActivated', 'true');
+            unlockUI();
+            sndOn();
+            showToast('success', 'Kích hoạt thành công!', 'Chào mừng đến SuperVNA 🎉');
+            closeMol();
+          } else {
+            var msg = (result && result.msg) ? result.msg : 'Key không hợp lệ hoặc đã hết hạn';
+            sndOff();
+            showToast('error', 'Kích hoạt thất bại', msg);
+          }
+        } catch (err) {
+          sndOff();
+          showToast('error', 'Lỗi kết nối', 'Không thể kết nối máy chủ. Thử lại sau!');
+        } finally {
+          inp.disabled = false;
+          btn.disabled = false;
+          btn.innerHTML = '⚡ KÍCH HOẠT NGAY';
+        }
+      }
+
+      function doFree() {
+        sndClick();
+        showToast('info', 'Key miễn phí', 'Liên hệ Nhên Developer để nhận key!');
         closeMol();
-      } else {
-        var msg = (result && result.msg) ? result.msg : 'Key không hợp lệ hoặc đã hết hạn';
-        sndOff();
-        showToast('error', 'Kích hoạt thất bại', msg);
       }
-    } catch (err) {
-      sndOff();
-      showToast('error', 'Lỗi kết nối', 'Không thể kết nối máy chủ. Thử lại sau!');
-    } finally {
-      inp.disabled = false;
-      btn.disabled = false;
-      btn.innerHTML = '⚡ KÍCH HOẠT NGAY';
-    }
-  }
 
-  function doFree() {
-    sndClick();
-    showToast('info', 'Key miễn phí', 'Liên hệ Nhên Developer để nhận key!');
-    closeMol();
-  }
+      // ── AUTO LOGIN — check saved key on load ──
+      async function autoCheckSavedKey() {
+        var savedKey = localStorage.getItem('license_key');
+        var savedAct = localStorage.getItem('isActivated');
+        if (!savedKey || savedAct !== 'true') return;
 
-  // ── AUTO LOGIN — check saved key on load ──
-  async function autoCheckSavedKey() {
-    var savedKey = localStorage.getItem('license_key');
-    var savedAct = localStorage.getItem('isActivated');
-    if (!savedKey || savedAct !== 'true') return;
+        try {
+          var result = await checkKey(savedKey);
+          if (result && result.status === 'success') {
+            unlockUI();
+            showToast('success', 'Tự động kích hoạt', 'Key hợp lệ — SuperVNA đã sẵn sàng!', 2500);
+          } else {
+            localStorage.removeItem('license_key');
+            localStorage.removeItem('device_id');
+            localStorage.removeItem('isActivated');
+            lockUI();
+            showToast('info', 'Key hết hạn', 'Vui lòng kích hoạt lại');
+          }
+        } catch (err) {
+          // Network error: keep locked, preserve key for retry
+          lockUI();
+        }
+      }
 
-    try {
-      var result = await checkKey(savedKey);
-      if (result && result.status === 'success') {
-        unlockUI();
-        showToast('success', 'Tự động kích hoạt', 'Key hợp lệ — SuperVNA đã sẵn sàng!', 2500);
-      } else {
-        localStorage.removeItem('license_key');
-        localStorage.removeItem('device_id');
-        localStorage.removeItem('isActivated');
+      // ── EXPOSE GLOBALS ──
+      window.openMol = openMol;
+      window.closeMol = closeMol;
+      window.molClose = molClose;
+      window.openPayMol = openPayMol;
+      window.closePayMol = closePayMol;
+      window.payMolClose = payMolClose;
+      window.showLicensePopup = showLicensePopup;
+      window.showPaymentPopup = showPaymentPopup;
+      window.doActivate = doActivate;
+      window.doFree = doFree;
+      window.handleFeatureClick = handleFeatureClick;
+      window.toggleFc = toggleFc;
+      window.showToast = showToast;
+
+      // ── INIT ──
+      (async function init() {
+        DEVICE_ID = getDeviceId();
         lockUI();
-        showToast('info', 'Key hết hạn', 'Vui lòng kích hoạt lại');
-      }
-    } catch (err) {
-      // Network error: keep locked, preserve key for retry
-      lockUI();
-    }
-  }
+        autoCheckSavedKey();
+      })();
 
-  // ── EXPOSE GLOBALS ──
-  window.openMol            = openMol;
-  window.closeMol           = closeMol;
-  window.molClose           = molClose;
-  window.openPayMol         = openPayMol;
-  window.closePayMol        = closePayMol;
-  window.payMolClose        = payMolClose;
-  window.showLicensePopup   = showLicensePopup;
-  window.showPaymentPopup   = showPaymentPopup;
-  window.doActivate         = doActivate;
-  window.doFree             = doFree;
-  window.handleFeatureClick = handleFeatureClick;
-  window.toggleFc           = toggleFc;
-  window.showToast          = showToast;
-
-  // ── INIT ──
-  (async function init() {
- DEVICE_ID = getDeviceId();   
-    lockUI();
-    autoCheckSavedKey();
-  })();
-
-})();
-</script>
+    })();
+  </script>
 </body>
+
 </html>
