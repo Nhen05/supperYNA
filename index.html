@@ -2234,322 +2234,301 @@
     </div>
 
   </div><!-- end phone-wrap -->
-<script>
-  (function () {
-    'use strict';
+  <script>
+    (function () {
+      'use strict';
 
-    // ── CONFIG ──
-    var API_BASE = 'https://api.dak.edu.vn';
-    var API_ENDPOINT = '/yna_api/license.php?action=check';
+      // ── CONFIG ──
+      var API_BASE = 'https://api.dak.edu.vn';
+      var API_ENDPOINT = '/yna_api/license.php?action=check';
 
-    // ── STATE ──
-    var isActivated = false;
-    var DEVICE_ID = null;
+      // ── STATE ──
+      var isActivated = false;
+      var DEVICE_ID = null;
 
-    // ── DEVICE ID (TƯƠNG THÍCH 100% MIT APP INVENTOR WEBVIEW) ──
-    function generateDeviceId() {
-      try {
-        var ua = (navigator && navigator.userAgent) ? navigator.userAgent : 'unknown';
-        var w = (screen && screen.width) ? screen.width : 0;
-        var h = (screen && screen.height) ? screen.height : 0;
-        var raw = ua + '|' + w + 'x' + h + '|' + Date.now();
+      // ── DEVICE ID ──
+      function generateDeviceId() {
+        try {
+          var ua = (navigator && navigator.userAgent) ? navigator.userAgent : 'unknown';
+          var w = (screen && screen.width) ? screen.width : 0;
+          var h = (screen && screen.height) ? screen.height : 0;
+          var raw = ua + '|' + w + 'x' + h + '|' + Date.now();
 
-        var hash = 0;
-        for (var i = 0; i < raw.length; i++) {
-          var chr = raw.charCodeAt(i);
-          hash = ((hash << 5) - hash) + chr;
-          hash = hash & hash;
+          var hash = 0;
+          for (var i = 0; i < raw.length; i++) {
+            var chr = raw.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash = hash & hash;
+          }
+          var hex = Math.abs(hash).toString(16).toUpperCase();
+          while (hex.length < 8) hex = '0' + hex;
+          return 'DEV-' + hex;
+        } catch (e) {
+          return 'DEV-' + Date.now().toString(16).toUpperCase().slice(-8);
         }
-        var hex = Math.abs(hash).toString(16).toUpperCase();
-        while (hex.length < 8) hex = '0' + hex;
-        return 'DEV-' + hex;
-      } catch (e) {
-        return 'DEV-' + Date.now().toString(16).toUpperCase().slice(-8);
-      }
-    }
-
-    function getDeviceId() {
-      try {
-        if (typeof localStorage === 'undefined') return generateDeviceId();
-        var cached = localStorage.getItem('svna_device_id');
-        if (cached && cached.length >= 12) return cached;
-        var id = generateDeviceId();
-        try { localStorage.setItem('svna_device_id', id); } catch (e) {}
-        return id;
-      } catch (e) {
-        return 'DEV-' + Date.now().toString(16).toUpperCase().slice(-8);
-      }
-    }
-
-    // ── DEBUG ALERT (AN TOÀN) ──
-    function debugAlert(step, info) {
-      try {
-        alert('[DEBUG ' + step + ']\n' + info);
-      } catch (e) {
-        console.log('[DEBUG ' + step + ']', info);
-      }
-    }
-
-    // ── SOUND ENGINE ──
-    var audioCtx = null;
-    function getAC() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    }
-    function beep(freq, t0, dur, vol) {
-      var ctx = getAC();
-      var osc = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, t0);
-      gain.gain.setValueAtTime(0, t0);
-      gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      osc.start(t0);
-      osc.stop(t0 + dur + 0.025);
-    }
-    function sndOn() { var t = getAC().currentTime; beep(880, t, 0.07, 0.15); beep(1320, t + 0.1, 0.09, 0.15); }
-    function sndOff() { var t = getAC().currentTime; beep(660, t, 0.07, 0.12); beep(440, t + 0.1, 0.10, 0.10); }
-    function sndClick() { var t = getAC().currentTime; beep(1100, t, 0.055, 0.09); }
-
-    // ── TOAST ──
-    var ICONS = { success: '✅', error: '❌', info: 'ℹ️' };
-    function showToast(type, title, sub, dur) {
-      dur = dur || 3200;
-      var c = document.getElementById('toast-container');
-      if (!c) return;
-      var el = document.createElement('div');
-      el.className = 'toast ' + type;
-      el.innerHTML =
-        '<div class="t-icon"><div class="t-ring2"></div><div class="t-ring"></div>' +
-        '<div class="t-inner">' + ICONS[type] + '</div></div>' +
-        '<div class="t-text"><div class="t-title">' + title + '</div>' +
-        (sub ? '<div class="t-sub">' + sub + '</div>' : '') + '</div>' +
-        '<div class="t-bar" style="animation-duration:' + dur + 'ms"></div>';
-      c.appendChild(el);
-      setTimeout(function () {
-        el.classList.add('hide');
-        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
-      }, dur);
-    }
-
-    // ── CHECK KEY ──
-    async function checkKey(key) {
-      if (!DEVICE_ID || DEVICE_ID.length < 5) {
-        DEVICE_ID = getDeviceId();
-        debugAlert("FIX DEVICE_ID", "Đã tạo mới Device ID: " + DEVICE_ID);
       }
 
-      const url = API_BASE + API_ENDPOINT + '&t=' + Date.now();
-      debugAlert("1. GỌI API", "Device ID gửi lên: " + DEVICE_ID);
+      function getDeviceId() {
+        try {
+          if (typeof localStorage === 'undefined') return generateDeviceId();
+          var cached = localStorage.getItem('svna_device_id');
+          if (cached && cached.length >= 12) return cached;
+          var id = generateDeviceId();
+          try { localStorage.setItem('svna_device_id', id); } catch (e) { }
+          return id;
+        } catch (e) {
+          return 'DEV-' + Date.now().toString(16).toUpperCase().slice(-8);
+        }
+      }
 
-      try {
-        const resp = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ key: key, device_id: DEVICE_ID }),
-          cache: 'no-store'
+      // ── SOUND ENGINE ──
+      var audioCtx = null;
+      function getAC() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      }
+      function beep(freq, t0, dur, vol) {
+        var ctx = getAC();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t0);
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        osc.start(t0);
+        osc.stop(t0 + dur + 0.025);
+      }
+      function sndOn() { var t = getAC().currentTime; beep(880, t, 0.07, 0.15); beep(1320, t + 0.1, 0.09, 0.15); }
+      function sndOff() { var t = getAC().currentTime; beep(660, t, 0.07, 0.12); beep(440, t + 0.1, 0.10, 0.10); }
+      function sndClick() { var t = getAC().currentTime; beep(1100, t, 0.055, 0.09); }
+
+      // ── TOAST ──
+      var ICONS = { success: '✅', error: '❌', info: 'ℹ️' };
+      function showToast(type, title, sub, dur) {
+        dur = dur || 3200;
+        var c = document.getElementById('toast-container');
+        if (!c) return;
+        var el = document.createElement('div');
+        el.className = 'toast ' + type;
+        el.innerHTML =
+          '<div class="t-icon"><div class="t-ring2"></div><div class="t-ring"></div>' +
+          '<div class="t-inner">' + ICONS[type] + '</div></div>' +
+          '<div class="t-text"><div class="t-title">' + title + '</div>' +
+          (sub ? '<div class="t-sub">' + sub + '</div>' : '') + '</div>' +
+          '<div class="t-bar" style="animation-duration:' + dur + 'ms"></div>';
+        c.appendChild(el);
+        setTimeout(function () {
+          el.classList.add('hide');
+          setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+        }, dur);
+      }
+
+      // ── CHECK KEY ──
+      async function checkKey(key) {
+        if (!DEVICE_ID || DEVICE_ID.length < 5) {
+          DEVICE_ID = getDeviceId();
+        }
+
+        const url = API_BASE + API_ENDPOINT + '&t=' + Date.now();
+
+        try {
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ key: key, device_id: DEVICE_ID }),
+            cache: 'no-store'
+          });
+
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+          const result = await resp.json();
+          return result;
+
+        } catch (err) {
+          throw err;
+        }
+      }
+
+      // ── UI FUNCTIONS ──
+      function lockUI() {
+        isActivated = false;
+        document.querySelectorAll('.fc').forEach(function (card) {
+          card.classList.add('locked');
+          if (!card.querySelector('.lock-overlay')) {
+            var ov = document.createElement('div');
+            ov.className = 'lock-overlay';
+            ov.textContent = '🔒';
+            card.appendChild(ov);
+          }
         });
-
-        debugAlert("2. STATUS", "HTTP " + resp.status);
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-
-        const result = await resp.json();
-        debugAlert("3. KẾT QUẢ TỪ SERVER", JSON.stringify(result, null, 2));
-        return result;
-
-      } catch (err) {
-        debugAlert("LỖI FETCH", err.message || err);
-        throw err;
+        var sl = document.getElementById('status-label');
+        if (sl) { sl.textContent = '• Chưa kích hoạt'; sl.style.color = 'var(--red)'; }
+        var bl = document.getElementById('btn-login');
+        if (bl) { bl.textContent = '🔑 LOGIN'; bl.classList.remove('ok'); }
       }
-    }
 
-    // ── UI FUNCTIONS ──
-    function lockUI() {
-      isActivated = false;
-      document.querySelectorAll('.fc').forEach(function (card) {
-        card.classList.add('locked');
-        if (!card.querySelector('.lock-overlay')) {
-          var ov = document.createElement('div');
-          ov.className = 'lock-overlay';
-          ov.textContent = '🔒';
-          card.appendChild(ov);
-        }
-      });
-      var sl = document.getElementById('status-label');
-      if (sl) { sl.textContent = '• Chưa kích hoạt'; sl.style.color = 'var(--red)'; }
-      var bl = document.getElementById('btn-login');
-      if (bl) { bl.textContent = '🔑 LOGIN'; bl.classList.remove('ok'); }
-    }
-
-    function unlockUI() {
-      isActivated = true;
-      document.querySelectorAll('.fc').forEach(function (card) {
-        card.classList.remove('locked');
-        var ov = card.querySelector('.lock-overlay');
-        if (ov) ov.remove();
-      });
-      var sl = document.getElementById('status-label');
-      if (sl) { sl.textContent = '• Đã kích hoạt'; sl.style.color = 'var(--green)'; }
-      var bl = document.getElementById('btn-login');
-      if (bl) { bl.textContent = '✅ ĐÃ KÍCH HOẠT'; bl.classList.add('ok'); }
-    }
-
-    function showLicensePopup() { var m = document.getElementById('mol'); if (m) m.classList.add('open'); }
-    function openMol() { showLicensePopup(); }
-    function closeMol() { var m = document.getElementById('mol'); if (m) m.classList.remove('open'); }
-    function molClose(e) { if (e.target.id === 'mol') closeMol(); }
-
-    function showPaymentPopup() { var m = document.getElementById('pay-mol'); if (m) m.classList.add('open'); sndClick(); }
-    function openPayMol() { showPaymentPopup(); }
-    function closePayMol() { var m = document.getElementById('pay-mol'); if (m) m.classList.remove('open'); }
-    function payMolClose(e) { if (e.target.id === 'pay-mol') closePayMol(); }
-
-    function toggleFc(card, id, name, desc) {
-      var tb = document.getElementById('tb-' + id);
-      var tg = document.getElementById('tg-' + id);
-      var isOn = tb.classList.contains('on');
-      tb.classList.remove('pop');
-      void tb.offsetWidth;
-      tb.classList.add('pop');
-
-      if (!isOn) {
-        sndOn();
-        card.classList.add('on'); tb.classList.add('on');
-        var svg = card.querySelector('.iw svg'); if (svg) svg.setAttribute('stroke', '#00ff87');
-        tg.className = 'stag on'; tg.innerHTML = '<span class="bl"></span> Đang chạy';
-        showToast('success', name + ' BẬT', desc);
-      } else {
-        sndOff();
-        card.classList.remove('on'); tb.classList.remove('on');
-        var svg2 = card.querySelector('.iw svg'); if (svg2) svg2.setAttribute('stroke', '#ff2d55');
-        tg.className = 'stag off'; tg.innerHTML = '<span class="bl"></span> Chưa bật';
-        showToast('error', name + ' TẮT', 'Tính năng đã vô hiệu hóa');
+      function unlockUI() {
+        isActivated = true;
+        document.querySelectorAll('.fc').forEach(function (card) {
+          card.classList.remove('locked');
+          var ov = card.querySelector('.lock-overlay');
+          if (ov) ov.remove();
+        });
+        var sl = document.getElementById('status-label');
+        if (sl) { sl.textContent = '• Đã kích hoạt'; sl.style.color = 'var(--green)'; }
+        var bl = document.getElementById('btn-login');
+        if (bl) { bl.textContent = '✅ ĐÃ KÍCH HOẠT'; bl.classList.add('ok'); }
       }
-    }
 
-    function handleFeatureClick(event, card, id, name, desc) {
-      if (card.classList.contains('locked')) {
-        event.preventDefault();
-        event.stopPropagation();
-        sndOff();
-        showToast('error', 'Chưa kích hoạt', 'Vui lòng nhập key để sử dụng');
-        showLicensePopup();
-        return;
-      }
-      toggleFc(card, id, name, desc);
-    }
+      function showLicensePopup() { var m = document.getElementById('mol'); if (m) m.classList.add('open'); }
+      function openMol() { showLicensePopup(); }
+      function closeMol() { var m = document.getElementById('mol'); if (m) m.classList.remove('open'); }
+      function molClose(e) { if (e.target.id === 'mol') closeMol(); }
 
-    // ── ACTIVATE (HOÀN CHỈNH - THÀNH CÔNG THÌ ĐÓNG POPUP + MỞ KHÓA NGAY) ──
-    async function doActivate() {
-      var inp = document.getElementById('kinp');
-      var btn = document.getElementById('btn-act');
-      var v = inp.value.trim();
+      function showPaymentPopup() { var m = document.getElementById('pay-mol'); if (m) m.classList.add('open'); sndClick(); }
+      function openPayMol() { showPaymentPopup(); }
+      function closePayMol() { var m = document.getElementById('pay-mol'); if (m) m.classList.remove('open'); }
+      function payMolClose(e) { if (e.target.id === 'pay-mol') closePayMol(); }
 
-      if (!v) { showToast('error', 'Thiếu key', 'Vui lòng nhập key kích hoạt!'); return; }
-      if (v.length < 6) { showToast('error', 'Key không hợp lệ', 'Thử lại với key đúng định dạng'); return; }
+      function toggleFc(card, id, name, desc) {
+        var tb = document.getElementById('tb-' + id);
+        var tg = document.getElementById('tg-' + id);
+        var isOn = tb.classList.contains('on');
+        tb.classList.remove('pop');
+        void tb.offsetWidth;
+        tb.classList.add('pop');
 
-      inp.disabled = true;
-      btn.disabled = true;
-      btn.innerHTML = '<div class="spinner"></div> ĐANG XÁC THỰC...';
-
-      try {
-        var result = await checkKey(v);
-
-        if (result && result.status === 'success') {
-          // Lưu thông tin kích hoạt
-          try {
-            localStorage.setItem('license_key', v);
-            localStorage.setItem('device_id', DEVICE_ID);
-            localStorage.setItem('isActivated', 'true');
-          } catch (e) {}
-
-          // Mở khóa chức năng ngay
-          unlockUI();
+        if (!isOn) {
           sndOn();
-
-          // Hiển thị thông báo thành công
-          showToast('success', 'Kích hoạt thành công!', 'Chào mừng đến SuperVNA 🎉');
-
-          // Đóng popup sau 0.8 giây (để người dùng kịp thấy toast)
-          setTimeout(function () {
-            closeMol();
-          }, 800);
-
+          card.classList.add('on'); tb.classList.add('on');
+          var svg = card.querySelector('.iw svg'); if (svg) svg.setAttribute('stroke', '#00ff87');
+          tg.className = 'stag on'; tg.innerHTML = '<span class="bl"></span> Đang chạy';
+          showToast('success', name + ' BẬT', desc);
         } else {
           sndOff();
-          var msg = (result && result.msg) ? result.msg : 'Key không hợp lệ hoặc đã hết hạn';
-          showToast('error', 'Kích hoạt thất bại', msg);
+          card.classList.remove('on'); tb.classList.remove('on');
+          var svg2 = card.querySelector('.iw svg'); if (svg2) svg2.setAttribute('stroke', '#ff2d55');
+          tg.className = 'stag off'; tg.innerHTML = '<span class="bl"></span> Chưa bật';
+          showToast('error', name + ' TẮC', 'Tính năng đã vô hiệu hóa');
         }
-
-      } catch (err) {
-        sndOff();
-        showToast('error', 'Lỗi kết nối', 'Không thể kết nối máy chủ. Thử lại sau!');
-      } finally {
-        inp.disabled = false;
-        btn.disabled = false;
-        btn.innerHTML = '⚡ KÍCH HOẠT NGAY';
       }
-    }
 
-    function doFree() {
-      sndClick();
-      showToast('info', 'Key miễn phí', 'Liên hệ Nhên Developer để nhận key!');
-      closeMol();
-    }
+      function handleFeatureClick(event, card, id, name, desc) {
+        if (card.classList.contains('locked')) {
+          event.preventDefault();
+          event.stopPropagation();
+          sndOff();
+          showToast('error', 'Chưa kích hoạt', 'Vui lòng nhập key để sử dụng');
+          showLicensePopup();
+          return;
+        }
+        toggleFc(card, id, name, desc);
+      }
 
-    // ── AUTO CHECK SAVED KEY ──
-    async function autoCheckSavedKey() {
-      var savedKey = localStorage.getItem('license_key');
-      var savedAct = localStorage.getItem('isActivated');
-      if (!savedKey || savedAct !== 'true') return;
+      // ── ACTIVATE ──
+      async function doActivate() {
+        var inp = document.getElementById('kinp');
+        var btn = document.getElementById('btn-act');
+        var v = inp.value.trim();
 
-      try {
-        var result = await checkKey(savedKey);
-        if (result && result.status === 'success') {
-          unlockUI();
-        } else {
-          localStorage.removeItem('license_key');
-          localStorage.removeItem('device_id');
-          localStorage.removeItem('isActivated');
+        if (!v) { showToast('error', 'Thiếu key', 'Vui lòng nhập key kích hoạt!'); return; }
+        if (v.length < 6) { showToast('error', 'Key không hợp lệ', 'Thử lại với key đúng định dạng'); return; }
+
+        inp.disabled = true;
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> ĐANG XÁC THỰC...';
+
+        try {
+          var result = await checkKey(v);
+
+          if (result && result.status === 'success') {
+            try {
+              localStorage.setItem('license_key', v);
+              localStorage.setItem('device_id', DEVICE_ID);
+              localStorage.setItem('isActivated', 'true');
+            } catch (e) { }
+
+            unlockUI();
+            sndOn();
+            showToast('success', 'Kích hoạt thành công!', 'Chào mừng đến SuperVNA 🎉');
+
+            setTimeout(function () {
+              closeMol();
+            }, 800);
+
+          } else {
+            sndOff();
+            var msg = (result && result.msg) ? result.msg : 'Key không hợp lệ hoặc đã hết hạn';
+            showToast('error', 'Kích hoạt thất bại', msg);
+          }
+
+        } catch (err) {
+          sndOff();
+          showToast('error', 'Lỗi kết nối', 'Không thể kết nối máy chủ. Thử lại sau!');
+        } finally {
+          inp.disabled = false;
+          btn.disabled = false;
+          btn.innerHTML = '⚡ KÍCH HOẠT NGAY';
+        }
+      }
+
+      function doFree() {
+        sndClick();
+        showToast('info', 'Key miễn phí', 'Liên hệ Nhên Developer để nhận key!');
+        closeMol();
+      }
+
+      // ── AUTO CHECK SAVED KEY ──
+      async function autoCheckSavedKey() {
+        var savedKey = localStorage.getItem('license_key');
+        var savedAct = localStorage.getItem('isActivated');
+        if (!savedKey || savedAct !== 'true') return;
+
+        try {
+          var result = await checkKey(savedKey);
+          if (result && result.status === 'success') {
+            unlockUI();
+          } else {
+            localStorage.removeItem('license_key');
+            localStorage.removeItem('device_id');
+            localStorage.removeItem('isActivated');
+            lockUI();
+          }
+        } catch (err) {
           lockUI();
         }
-      } catch (err) {
-        lockUI();
       }
-    }
 
-    // ── INIT ──
-    function init() {
-      DEVICE_ID = getDeviceId();
-      debugAlert("0. KHỞI ĐỘNG", "Device ID: " + DEVICE_ID);
-      lockUI();
-      autoCheckSavedKey();
-    }
+      // ── INIT ──
+      function init() {
+        DEVICE_ID = getDeviceId();
+        lockUI();
+        autoCheckSavedKey();
+      }
 
-    // ── EXPOSE FUNCTIONS ──
-    window.doActivate = doActivate;
-    window.doFree = doFree;
-    window.openMol = openMol;
-    window.closeMol = closeMol;
-    window.molClose = molClose;
-    window.openPayMol = openPayMol;
-    window.closePayMol = closePayMol;
-    window.payMolClose = payMolClose;
-    window.showLicensePopup = showLicensePopup;
-    window.showPaymentPopup = showPaymentPopup;
-    window.handleFeatureClick = handleFeatureClick;
-    window.toggleFc = toggleFc;
-    window.showToast = showToast;
+      // ── EXPOSE FUNCTIONS ──
+      window.doActivate = doActivate;
+      window.doFree = doFree;
+      window.openMol = openMol;
+      window.closeMol = closeMol;
+      window.molClose = molClose;
+      window.openPayMol = openPayMol;
+      window.closePayMol = closePayMol;
+      window.payMolClose = payMolClose;
+      window.showLicensePopup = showLicensePopup;
+      window.showPaymentPopup = showPaymentPopup;
+      window.handleFeatureClick = handleFeatureClick;
+      window.toggleFc = toggleFc;
+      window.showToast = showToast;
 
-    // Chạy ngay khi script load
-    init();
+      init();
 
-  })();
-</script>
+    })();
+  </script>
 </body>
 
 </html>
