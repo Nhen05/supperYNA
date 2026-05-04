@@ -1855,7 +1855,7 @@
             <polyline points="23 4 23 10 17 10" />
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
           </svg>
-          Update <span class="v">v2.6</span>
+          Update <span class="v">v2.1</span>
         </div>
         <div style="font-family:'Rajdhani';font-size:9.5px;letter-spacing:1px;color:var(--muted)">⚡ FUNCTION APP SUPER
         </div>
@@ -2477,18 +2477,14 @@
       }
 
       function doFree() {
-    sndClick();
-    showToast('info', 'Key miễn phí', 'Đang chuyển hướng...');
-    closeMol();
-    
-    setTimeout(() => {
-      
-        
-        // Cách 2: Mở trực tiếp trình duyệt ngoài (thường tốt hơn trên Android)
-        window.open("https://link4m.com/zwEfEFv", "_system");
-    }, 600);
-}
+        sndClick();
+        showToast('info', 'Key miễn phí', 'Đang chuyển hướng...');
+        closeMol();
 
+        setTimeout(() => {
+          window.location.href = "https://link4m.com/zwEfEFv";
+        }, 600);
+      }
       // ── AUTO CHECK SAVED KEY ──
       async function autoCheckSavedKey() {
         var savedKey = localStorage.getItem('license_key');
