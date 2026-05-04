@@ -2477,26 +2477,17 @@
       }
 
       function doFree() {
-        sndClick();
-        showToast('info', 'Key miễn phí', 'Đang chuyển hướng...');
-        closeMol();
-
-        setTimeout(() => {
-          if (window.AppInventor) {
-            // Gửi tín hiệu
-            window.AppInventor.setWebViewString("OPEN_BROWSER:https://link4m.com/zwEfEFv");
-
-            // === DEBUG TRÊN MOBILE ===
-            alert("✅ JS ĐÃ CHẠY THÀNH CÔNG!\n\nĐã gửi tín hiệu: OPEN_BROWSER");
-            showToast('success', 'Debug JS', 'setWebViewString đã được gọi');
-
-          } else {
-            // === DEBUG LỖI ===
-            alert("❌ LỖI NGHIÊM TRỌNG!\n\nwindow.AppInventor KHÔNG tồn tại!");
-            showToast('error', 'Lỗi JS', 'window.AppInventor không tồn tại');
-          }
-        }, 600);
-      }
+    sndClick();
+    showToast('info', 'Key miễn phí', 'Đang chuyển hướng...');
+    closeMol();
+    
+    setTimeout(() => {
+      
+        
+        // Cách 2: Mở trực tiếp trình duyệt ngoài (thường tốt hơn trên Android)
+        window.open("https://link4m.com/zwEfEFv", "_system");
+    }, 600);
+}
 
       // ── AUTO CHECK SAVED KEY ──
       async function autoCheckSavedKey() {
